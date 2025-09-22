@@ -915,6 +915,12 @@ function setupEventListeners() {
         });
     });
 
+    // Send to AI button
+    const sendToAIBtn = document.getElementById('sendToAI');
+    if (sendToAIBtn) {
+        sendToAIBtn.addEventListener('click', copyAllMealsToClipboard);
+    }
+
     // Search input with debounce
     let searchTimeout;
     const searchInput = document.getElementById('searchInput');
@@ -1183,6 +1189,25 @@ function closeModal() {
 
 
 window.closeModal = closeModal;
+
+
+function copyAllMealsToClipboard() {
+    const mealNames = meals.map(meal => meal.name).join('\n');
+
+    navigator.clipboard.writeText(mealNames).then(() => {
+        const btn = document.getElementById('sendToAI');
+        btn.classList.add('copied');
+        btn.textContent = '✅ Copied!';
+
+        setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.textContent = '🤖 Send to AI';
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy meal names to clipboard');
+    });
+}
 
 
 function initializeApp() {

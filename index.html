@@ -85,6 +85,29 @@
         border-color: #3b82f6;
       }
 
+      .ai-btn {
+        padding: 6px 14px;
+        border: 2px solid #10b981;
+        border-radius: 20px;
+        background: white;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        margin-left: 8px;
+        font-weight: 600;
+      }
+
+      .ai-btn:hover {
+        background: #10b981;
+        color: white;
+      }
+
+      .ai-btn.copied {
+        background: #10b981;
+        color: white;
+      }
+
       .meals-viewport {
         flex: 1;
         overflow-y: auto;
@@ -304,6 +327,7 @@
           <button class="mood-btn" data-mood="seafood">🐟 Seafood</button>
           <button class="mood-btn" data-mood="breakfast">🌅 Breakfast</button>
         </div>
+        <button id="sendToAI" class="ai-btn" title="Copy all meal names to clipboard">🤖 Send to AI</button>
       </div>
 
       <!-- Meals Grid Viewport -->
