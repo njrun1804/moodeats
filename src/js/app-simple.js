@@ -254,12 +254,21 @@ function initializeTagifySearch() {
                 </tag>`;
             },
             dropdownItem: function(tagData) {
+                const categoryLabel = {
+                    'ingredient': 'ingredient',
+                    'mood': 'mood',
+                    'cuisine': 'cuisine',
+                    'meal-type': 'meal',
+                    'cooking': 'method',
+                    'search-term': ''
+                };
+                const category = categoryLabel[tagData.category] || '';
                 return `<div ${this.getAttributes(tagData)}
                         class='tagify__dropdown__item ${tagData.category ? 'tagify__dropdown__item--' + tagData.category : ''}'
                         tabindex="0"
                         role="option">
                     <span class='tagify__dropdown__item__text'>${tagData.value}</span>
-                    <span class='tagify__dropdown__item__category'>${tagData.category || ''}</span>
+                    ${category ? `<span class='tagify__dropdown__item__category'>${category}</span>` : ''}
                 </div>`;
             }
         }
