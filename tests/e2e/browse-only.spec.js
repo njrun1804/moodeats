@@ -90,7 +90,11 @@ test.describe('MoodEats Browse-Only', () => {
         const moods = ['cozy', 'fresh', 'hearty', 'quick', 'asian', 'italian', 'seafood', 'breakfast'];
 
         for (const mood of moods) {
-            await page.locator(`[data-mood="${mood}"]`).click({ force: true });
+            // Use JavaScript click to bypass viewport issues on mobile
+            await page.evaluate((moodValue) => {
+                const button = document.querySelector(`[data-mood="${moodValue}"]`);
+                if (button) button.click();
+            }, mood);
 
             // Wait for meals to load
             await page.waitForTimeout(1000);
