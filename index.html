@@ -79,7 +79,43 @@
         box-shadow: 0 0 0 1px #3b82f6;
       }
 
-      /* Let Tagify handle all tag styling - no customization */
+      /* Essential tag styling only */
+      .tagify__tag {
+        background: #3b82f6;
+        color: white;
+        border-radius: 4px;
+        margin: 2px;
+        padding: 4px 8px;
+        font-size: 13px;
+      }
+
+      .tagify__tag:hover {
+        background: #2563eb;
+      }
+
+      /* Ensure text stays white */
+      .tagify__tag > div {
+        color: white;
+      }
+
+      /* Fix remove button to not appear as strikethrough */
+      .tagify__tag__removeBtn {
+        color: white;
+        opacity: 0.7;
+        font-size: 14px;
+      }
+
+      .tagify__tag__removeBtn:hover {
+        opacity: 1;
+      }
+
+      /* Prevent any strikethrough styling */
+      .tagify__tag x,
+      .tagify__tag .tagify__tag__removeBtn::before {
+        text-decoration: none;
+        border: none;
+        background: none;
+      }
 
       .tagify__dropdown {
         border: 1px solid #d1d5db;
