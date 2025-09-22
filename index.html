@@ -80,28 +80,41 @@
       }
 
       .tagify__tag {
-        background: #3b82f6;
-        color: white;
+        background: #3b82f6 !important;
+        color: white !important;
         border-radius: 4px;
         margin: 2px;
         padding: 4px 8px;
         font-size: 13px;
+        border: none !important;
       }
 
       .tagify__tag:hover {
-        background: #2563eb;
+        background: #2563eb !important;
       }
 
       .tagify__tag--ingredient {
-        background: #10b981;
+        background: #10b981 !important;
+        color: white !important;
       }
 
       .tagify__tag--mood {
-        background: #f59e0b;
+        background: #f59e0b !important;
+        color: white !important;
       }
 
       .tagify__tag--cuisine {
-        background: #8b5cf6;
+        background: #8b5cf6 !important;
+        color: white !important;
+      }
+
+      /* Ensure tag text is always white */
+      .tagify__tag > div {
+        color: white !important;
+      }
+
+      .tagify__tag-text {
+        color: white !important;
       }
 
 
