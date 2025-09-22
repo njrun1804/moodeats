@@ -50,10 +50,99 @@ function loadMeals() {
 function initFuzzySearch() {
     if (typeof Fuse !== 'undefined' && meals.length > 0) {
         fuse = new Fuse(meals, {
-            keys: ['name', 'searchTerms', 'moods', 'ingredients.core'],
-            threshold: 0.4
+            keys: [
+                { name: 'name', weight: 1.0 },
+                { name: 'searchTerms', weight: 0.7 },
+                { name: 'ingredients.core', weight: 0.5 },
+                { name: 'moods', weight: 0.4 },
+                { name: 'ingredients.pantry', weight: 0.3 }
+            ],
+            threshold: 0.3,
+            includeScore: true,
+            includeMatches: true,
+            minMatchCharLength: 2,
+            ignoreLocation: true
         });
     }
+}
+
+// Improved search with exact match prioritization
+function performAdvancedSearch(query, availableMeals = meals) {
+    if (!query || query.length < 2) {
+        return availableMeals;
+    }
+
+    const normalizedQuery = query.toLowerCase().trim();
+
+    // Step 1: Find exact matches first
+    const exactMatches = availableMeals.filter(meal => {
+        return meal.name.toLowerCase().includes(normalizedQuery) ||
+               meal.searchTerms.some(term => term.toLowerCase().includes(normalizedQuery));
+    });
+
+    // Step 2: Get fuzzy matches with dynamic threshold
+    const threshold = getDynamicThreshold(normalizedQuery.length);
+    fuse.setThreshold(threshold);
+
+    const fuzzyResults = fuse.search(normalizedQuery);
+
+    // Step 3: Combine and rank results
+    const combinedResults = combineSearchResults(exactMatches, fuzzyResults, normalizedQuery, availableMeals);
+
+    // Step 4: Limit results
+    return combinedResults.slice(0, 12);
+}
+
+function getDynamicThreshold(queryLength) {
+    if (queryLength <= 4) return 0.1;
+    if (queryLength <= 8) return 0.2;
+    return 0.3;
+}
+
+function combineSearchResults(exactMatches, fuzzyResults, query, availableMeals) {
+    const results = new Map();
+
+    // Add exact matches with highest priority
+    exactMatches.forEach(meal => {
+        const priority = getExactMatchPriority(meal, query);
+        results.set(meal.name, { meal, score: priority, type: 'exact' });
+    });
+
+    // Add fuzzy matches that aren't already in exact matches and are in available meals
+    fuzzyResults.forEach(result => {
+        const isAvailable = availableMeals.some(m => m.name === result.item.name);
+        if (!results.has(result.item.name) && result.score <= 0.4 && isAvailable) {
+            const adjustedScore = 0.5 + result.score; // Lower priority than exact matches
+            results.set(result.item.name, { meal: result.item, score: adjustedScore, type: 'fuzzy' });
+        }
+    });
+
+    // Sort by score (lower is better) and return meals
+    return Array.from(results.values())
+        .sort((a, b) => a.score - b.score)
+        .map(result => result.meal);
+}
+
+function getExactMatchPriority(meal, query) {
+    const mealName = meal.name.toLowerCase();
+    const queryLower = query.toLowerCase();
+
+    // Exact name match gets highest priority
+    if (mealName === queryLower) return 0.01;
+
+    // Name starts with query gets very high priority
+    if (mealName.startsWith(queryLower)) return 0.02;
+
+    // Name contains query gets high priority
+    if (mealName.includes(queryLower)) return 0.03;
+
+    // Search terms exact match
+    if (meal.searchTerms.some(term => term.toLowerCase() === queryLower)) return 0.04;
+
+    // Search terms partial match
+    if (meal.searchTerms.some(term => term.toLowerCase().includes(queryLower))) return 0.05;
+
+    return 0.1; // Default for other exact matches
 }
 
 function loadDailyPlanOnStartup() {
@@ -191,17 +280,19 @@ function setupAllEventListeners() {
     // Modal search
     document.getElementById('modalSearch')?.addEventListener('input', (e) => {
         const query = e.target.value.trim();
-        let results;
+        let availableMeals;
 
-        if (query) {
-            results = fuse.search(query).map(r => r.item);
+        // First determine available meals based on slot
+        if (currentSlot === 'breakfast') {
+            availableMeals = meals.filter(m => m.moods.includes('breakfast'));
+        } else if (currentSlot === 'snacks') {
+            availableMeals = meals.filter(m => m.category === 'side' || m.moods.includes('quick'));
         } else {
-            results = currentSlot === 'breakfast'
-                ? meals.filter(m => m.moods.includes('breakfast'))
-                : currentSlot === 'snacks'
-                ? meals.filter(m => m.category === 'side' || m.moods.includes('quick'))
-                : meals.filter(m => !m.moods.includes('breakfast'));
+            availableMeals = meals.filter(m => !m.moods.includes('breakfast'));
         }
+
+        // Apply search if query exists
+        const results = query ? performAdvancedSearch(query, availableMeals) : availableMeals;
 
         const otherMeals = Object.entries(dailyPlan)
             .filter(([s, m]) => s !== currentSlot && m)
