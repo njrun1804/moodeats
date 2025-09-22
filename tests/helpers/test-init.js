@@ -1,14 +1,13 @@
-// Shared helper for initializing the app in test environment
+// Shared helper for initializing the browse-only app in test environment
 
 /**
- * Initialize the MoodEats app for testing
- * Handles the fact that embeddedMeals aren't loaded in test environment
- * and event listeners aren't attached without proper initialization
+ * Initialize the MoodEats browse-only app for testing
+ * The browse-only version should work without complex initialization
  */
 async function initializeTestApp(page) {
   // Wait for page to load
   await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(1000);
 
   // Inject test meals and force initialization
   await page.evaluate(() => {
@@ -57,28 +56,11 @@ async function initializeTestApp(page) {
 }
 
 /**
- * Force a specific view to be visible (for tests where tab switching doesn't work)
+ * Force a specific view to be visible (browse-only version doesn't need this)
  */
 async function forceViewVisible(page, viewName) {
-  await page.evaluate((view) => {
-    const views = {
-      'browse': { show: 'browseView', hide: 'planView', tab: 'browseTab', inactiveTab: 'planTab' },
-      'plan': { show: 'planView', hide: 'browseView', tab: 'planTab', inactiveTab: 'browseTab' }
-    };
-
-    const config = views[view];
-    if (config) {
-      const showEl = document.getElementById(config.show);
-      const hideEl = document.getElementById(config.hide);
-      const activeTab = document.getElementById(config.tab);
-      const inactiveTab = document.getElementById(config.inactiveTab);
-
-      if (showEl) showEl.classList.remove('hidden');
-      if (hideEl) hideEl.classList.add('hidden');
-      if (activeTab) activeTab.classList.add('tab-active');
-      if (inactiveTab) inactiveTab.classList.remove('tab-active');
-    }
-  }, viewName);
+  // Browse-only version is always in browse mode - no action needed
+  console.log(`forceViewVisible called with ${viewName} - not applicable in browse-only version`);
 }
 
 /**

@@ -1,9 +1,9 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-test('simple tab switching test', async ({ page }) => {
-  await page.goto('/moodeats-planner.html');
-  await page.waitForLoadState('networkidle');
+test.skip('simple tab switching not applicable to browse-only version', async ({ page }) => {
+  // The browse-only version doesn't have tabs - this test is not applicable
+  // Skipping rather than converting since the core functionality doesn't exist
 
   // Wait for page to fully load
   await page.waitForTimeout(3000);

@@ -1,15 +1,15 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-test.describe('Meal Selection Modal', () => {
+test.describe('Meal Detail Modal (browse-only version)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForFunction(() => window.meals && window.meals.length > 0);
+    await page.goto('http://localhost:8000');
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1000);
   });
 
-  test('modal filters work correctly', async ({ page }) => {
-    // Open breakfast modal
-    await page.evaluate(() => window.selectMealForSlot('breakfast'));
+  test.skip('modal filters not applicable to browse-only version', async ({ page }) => {
+    // The browse-only version doesn't have meal selection modals
     await page.waitForTimeout(300);
 
     // Get initial meal count

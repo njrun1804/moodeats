@@ -1,8 +1,8 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-test('verify initialization actually works', async ({ page }) => {
-  await page.goto('/moodeats-planner.html');
+test('verify browse-only app initialization works', async ({ page }) => {
+  await page.goto('http://localhost:8000');
   await page.waitForLoadState('networkidle');
 
   // Log console messages
@@ -11,96 +11,49 @@ test('verify initialization actually works', async ({ page }) => {
   });
 
   // Wait for page to settle
-  await page.waitForTimeout(2000);
-
-  // Step 1: Check initial state
-  const initialState = await page.evaluate(() => {
-    return {
-      hasInitializeApp: typeof window.initializeApp === 'function',
-      hasLoadMeals: typeof window.loadMeals === 'function',
-      hasSetupAllEventListeners: typeof window.setupAllEventListeners === 'function',
-      mealsStatus: window.meals ? `${window.meals.length} meals` : 'undefined',
-      embeddedMealsStatus: typeof window.embeddedMeals !== 'undefined' ? `${window.embeddedMeals.length} embedded` : 'no embedded meals'
-    };
-  });
-  console.log('Initial state:', initialState);
-
-  // Step 2: Force initialization with test data
-  await page.evaluate(() => {
-    // Create test meals
-    const testMeals = [
-      { name: "Test Fresh", category: "salad", moods: ["fresh"], ingredients: { core: ["lettuce"], pantry: ["oil"] }, nutrition: { calories: 200, protein: 5, carbs: 20, fat: 10 }, searchTerms: ["salad", "fresh"] },
-      { name: "Test Cozy", category: "soup", moods: ["cozy"], ingredients: { core: ["chicken"], pantry: ["broth"] }, nutrition: { calories: 350, protein: 25, carbs: 30, fat: 12 }, searchTerms: ["soup", "cozy"] }
-    ];
-
-    // Set embeddedMeals
-    window.embeddedMeals = testMeals;
-    console.log('Set embeddedMeals:', window.embeddedMeals);
-
-    // Call initializeApp
-    if (typeof window.initializeApp === 'function') {
-      console.log('Calling initializeApp...');
-      window.initializeApp();
-    }
-  });
-
   await page.waitForTimeout(1000);
 
-  // Step 3: Check post-init state
-  const postInitState = await page.evaluate(() => {
+  // Step 1: Verify browse-only app basic functionality works
+  console.log('Testing browse-only app initialization...');
+
+  // Check that essential elements are present
+  const elementsPresent = await page.evaluate(() => {
     return {
-      mealsStatus: window.meals ? `${window.meals.length} meals` : 'undefined',
-      browseTabHasListener: (() => {
-        const tab = document.getElementById('browseTab');
-        if (!tab) return 'no tab';
-        // Try clicking and see if view changes
-        const beforeClick = document.getElementById('browseView')?.className;
-        tab.click();
-        const afterClick = document.getElementById('browseView')?.className;
-        return {
-          before: beforeClick,
-          after: afterClick,
-          changed: beforeClick !== afterClick
-        };
-      })()
+      hasSearchInput: !!document.getElementById('searchInput'),
+      hasMoodButtons: document.querySelectorAll('.mood-btn').length > 0,
+      hasMealSuggestions: !!document.getElementById('mealSuggestions'),
+      bodyVisible: !!document.body && document.body.style.display !== 'none'
     };
   });
-  console.log('Post-init state:', postInitState);
+  console.log('Elements present:', elementsPresent);
 
-  // Step 4: Test tab switching with Playwright
-  const browseTab = page.locator('#browseTab');
-  const browseView = page.locator('#browseView');
-  const planView = page.locator('#planView');
+  // Verify all essential elements exist
+  expect(elementsPresent.hasSearchInput).toBe(true);
+  expect(elementsPresent.hasMoodButtons).toBe(true);
+  expect(elementsPresent.hasMealSuggestions).toBe(true);
+  expect(elementsPresent.bodyVisible).toBe(true);
 
-  console.log('Before Playwright click:');
-  console.log('  browseView visible:', await browseView.isVisible());
-  console.log('  planView visible:', await planView.isVisible());
+  // Step 2: Test that mood buttons are functional
+  console.log('Testing mood button functionality...');
+  await page.click('[data-mood="fresh"]', { force: true });
+  await page.waitForTimeout(1000);
 
-  await browseTab.click();
-  await page.waitForTimeout(500);
+  // Check if meals are displayed
+  const mealCards = page.locator('#mealSuggestions .meal-card');
+  const cardCount = await mealCards.count();
+  console.log(`Meals displayed after clicking Fresh: ${cardCount}`);
+  expect(cardCount).toBeGreaterThan(0);
 
-  console.log('After Playwright click:');
-  console.log('  browseView visible:', await browseView.isVisible());
-  console.log('  planView visible:', await planView.isVisible());
+  // Step 3: Test search functionality
+  console.log('Testing search functionality...');
+  const searchInput = page.locator('#searchInput');
+  await searchInput.fill('chicken');
+  await page.waitForTimeout(1000);
 
-  // Step 5: Check if we can force visibility manually
-  await page.evaluate(() => {
-    const bv = document.getElementById('browseView');
-    const pv = document.getElementById('planView');
-    if (bv && pv) {
-      bv.classList.remove('hidden');
-      pv.classList.add('hidden');
-      console.log('Manually toggled visibility');
-    }
-  });
+  const searchResults = page.locator('#mealSuggestions .meal-card');
+  const searchCount = await searchResults.count();
+  console.log(`Search results for "chicken": ${searchCount}`);
+  expect(searchCount).toBeGreaterThan(0);
 
-  console.log('After manual toggle:');
-  console.log('  browseView visible:', await browseView.isVisible());
-  console.log('  planView visible:', await planView.isVisible());
-
-  // Check if mood buttons are visible now
-  const freshButton = page.locator('[data-mood="fresh"]');
-  console.log('Fresh button visible:', await freshButton.isVisible());
-
-  expect(await browseView.isVisible()).toBe(true);
+  console.log('✅ Browse-only app initialization test passed!');
 });

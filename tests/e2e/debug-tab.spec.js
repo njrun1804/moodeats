@@ -1,10 +1,10 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-test.describe('Debug Tab Switching', () => {
-  test('debug tab switching and visibility', async ({ page }) => {
-    // Navigate to page
-    await page.goto('/moodeats-planner.html');
+test.describe('Debug Browse-Only App (tab switching not applicable)', () => {
+  test.skip('debug tab switching not applicable to browse-only version', async ({ page }) => {
+    // The browse-only version doesn't have tabs to debug
+    // This test is skipped as the functionality doesn't exist
 
     // Wait for page to load
     await page.waitForLoadState('networkidle');

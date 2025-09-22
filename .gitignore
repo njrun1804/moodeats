@@ -1,15 +1,80 @@
+# Dependencies
 node_modules/
-.env
-/.local/
-wake.min.html
-*.log
-.DS_Store
 npm-debug.log*
-/.vscode/
-dist/
+yarn-debug.log*
+yarn-error.log*
 
-# Test artifacts
-test-visual.js
-wake-updated.png
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+build/
+out/
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Test artifacts and results
 test-results/
+*.png
+*.jpg
+*.jpeg
+*.gif
+.screenshots/
+playwright-report/
+playwright/.cache/
+
+# Logs
+*.log
+logs/
+*.tgz
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+.tmp/
+.temp/
+*.tmp
+*.temp
+
+# Cache directories
+.cache/
+.parcel-cache/
+.npm/
+.eslintcache
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Optional project-specific ignores
+wake.min.html
+wake-updated.png
 wake-tests.js

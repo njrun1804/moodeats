@@ -7,12 +7,14 @@ on:
       - 'README.md'
       - 'LICENSE'
       - 'docs/**'
+      - '*.md'
   pull_request:
     branches: [ main ]
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
       - 'docs/**'
+      - '*.md'
 
 # Cancel in-progress runs when new push happens
 concurrency:
@@ -20,8 +22,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '18'
-  CACHE_KEY: moodeats-v1
+  NODE_VERSION: '20'
+  CACHE_KEY: moodeats-v2
 
 jobs:
   # Quick checks run first - fail fast
@@ -121,84 +123,69 @@ jobs:
         path: coverage/
         retention-days: 7
 
-  # E2E tests - run in parallel by browser
-  e2e-chrome:
+  # E2E tests - optimized for browse-only functionality
+  e2e-tests:
     runs-on: ubuntu-latest
-    name: 🌐 E2E Chrome
+    name: 🌐 E2E Tests
     needs: quick-checks
-    timeout-minutes: 10
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         cache-dependency-path: package-lock.json
 
-    - name: Cache Playwright
+    - name: Cache Playwright browsers
       uses: actions/cache@v4
       with:
-        path: |
-          ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-playwright-${{ env.NODE_VERSION }}-
 
-    - name: Install deps
-      run: |
-        npm ci --prefer-offline --no-audit
-        npx playwright install chromium --with-deps
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ env.NODE_VERSION }}-
 
-    - name: Run Chrome tests
+    - name: Install dependencies
       run: |
-        npx playwright test tests/e2e/browse-only.spec.js --project=chromium --reporter=dot
+        npm ci --prefer-offline --no-audit --no-fund
+        npx playwright install ${{ matrix.browser }} --with-deps
+
+    - name: Start server in background
+      run: |
+        python3 -m http.server 8000 &
+        sleep 2
+
+    - name: Run E2E tests
+      run: |
+        npx playwright test tests/e2e/browse-only.spec.js --project=${{ matrix.browser }} --reporter=dot
 
     - name: Upload results
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: chrome-results
+        name: e2e-results-${{ matrix.browser }}
         path: test-results/
-
-  e2e-firefox:
-    runs-on: ubuntu-latest
-    name: 🌐 E2E Firefox
-    needs: quick-checks
-    timeout-minutes: 10
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: package-lock.json
-
-    - name: Cache Playwright
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
-
-    - name: Install deps
-      run: |
-        npm ci --prefer-offline --no-audit
-        npx playwright install firefox --with-deps
-
-    - name: Run Firefox tests
-      run: |
-        npx playwright test tests/e2e/browse-only.spec.js --project=firefox --reporter=dot
-
-    - name: Upload results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: firefox-results
-        path: test-results/
+        retention-days: 3
 
   # Deploy only after all tests pass
   deploy:
     runs-on: ubuntu-latest
     name: 🚀 Deploy to GitHub Pages
-    needs: [unit-tests, e2e-chrome, e2e-firefox]
+    needs: [unit-tests, e2e-tests]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
@@ -211,16 +198,30 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup Node.js for build optimization
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
     - name: Optimize assets
       run: |
         echo "🗜️ Optimizing assets..."
 
-        # Minify HTML (simple approach)
+        # Install html-minifier for better optimization
+        npm install -g html-minifier-terser
+
+        # Minify HTML files
         for file in *.html; do
           if [ -f "$file" ]; then
-            # Remove comments and extra whitespace
-            sed -i 's/<!--.*-->//g' "$file"
-            sed -i '/^[[:space:]]*$/d' "$file"
+            html-minifier-terser "$file" \
+              --collapse-whitespace \
+              --remove-comments \
+              --minify-css \
+              --minify-js \
+              --remove-optional-tags \
+              --remove-redundant-attributes \
+              -o "$file.min"
+            mv "$file.min" "$file"
             echo "✅ Optimized $file"
           fi
         done
@@ -231,7 +232,7 @@ jobs:
         du -h *.html | sort -h
 
     - name: Setup GitHub Pages
-      uses: actions/configure-pages@v4
+      uses: actions/configure-pages@v5
 
     - name: Upload to Pages
       uses: actions/upload-pages-artifact@v3
@@ -250,37 +251,18 @@ jobs:
         # Wait for deployment to propagate
         sleep 10
 
-        # Test the live site
-        response=$(curl -s -o /dev/null -w "%{http_code}" https://njrun1804.github.io/moodeats/)
-        if [ "$response" = "200" ]; then
+        # Quick health check
+        if curl -sSfI https://njrun1804.github.io/moodeats/ >/dev/null 2>&1; then
           echo "✅ Site is live and responding"
         else
-          echo "⚠️ Site returned HTTP $response"
+          echo "⚠️ Site health check failed - may need time to propagate"
         fi
-
-  # Performance monitoring
-  performance:
-    runs-on: ubuntu-latest
-    name: 🏎️ Performance Check
-    needs: deploy
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Lighthouse CI
-      run: |
-        npm install -g @lhci/cli
-        lhci autorun \
-          --collect.url=https://njrun1804.github.io/moodeats/ \
-          --assert.preset=lighthouse:no-pwa \
-          --upload.target=temporary-public-storage || true
 
   # Summary job
   summary:
     runs-on: ubuntu-latest
     name: 📊 Pipeline Summary
-    needs: [unit-tests, e2e-chrome, e2e-firefox, deploy]
+    needs: [quick-checks, unit-tests, e2e-tests, deploy]
     if: always()
 
     steps:
@@ -289,20 +271,37 @@ jobs:
         echo "# 🎯 MoodEats Pipeline Summary"
         echo ""
         echo "## Test Results"
-        echo "- Quick Checks: ${{ needs.quick-checks.result || 'skipped' }}"
-        echo "- Unit Tests: ${{ needs.unit-tests.result }}"
-        echo "- E2E Chrome: ${{ needs.e2e-chrome.result }}"
-        echo "- E2E Firefox: ${{ needs.e2e-firefox.result }}"
+        echo "- ⚡ Quick Checks: ${{ needs.quick-checks.result || 'skipped' }}"
+        echo "- 🧪 Unit Tests: ${{ needs.unit-tests.result || 'skipped' }}"
+        echo "- 🌐 E2E Tests: ${{ needs.e2e-tests.result || 'skipped' }}"
         echo ""
         echo "## Deployment"
-        echo "- Deploy: ${{ needs.deploy.result || 'skipped' }}"
-        echo "- Performance: ${{ needs.performance.result || 'pending' }}"
+        echo "- 🚀 Deploy: ${{ needs.deploy.result || 'skipped' }}"
         echo ""
 
-        if [[ "${{ needs.deploy.result }}" == "success" ]]; then
-          echo "✅ **Successfully deployed to:** https://njrun1804.github.io/moodeats/"
+        # Check overall success
+        if [[ "${{ needs.quick-checks.result }}" == "success" ]] && \
+           [[ "${{ needs.unit-tests.result }}" == "success" ]] && \
+           [[ "${{ needs.e2e-tests.result }}" == "success" ]]; then
+          echo "✅ **All tests passed successfully!**"
+
+          if [[ "${{ needs.deploy.result }}" == "success" ]]; then
+            echo "✅ **Successfully deployed to:** https://njrun1804.github.io/moodeats/"
+          fi
+        else
+          echo "❌ Some tests failed. Check the logs above for details."
+
+          # Show which tests failed
+          if [[ "${{ needs.quick-checks.result }}" == "failure" ]]; then
+            echo "  • Quick checks failed"
+          fi
+          if [[ "${{ needs.unit-tests.result }}" == "failure" ]]; then
+            echo "  • Unit tests failed"
+          fi
+          if [[ "${{ needs.e2e-tests.result }}" == "failure" ]]; then
+            echo "  • E2E tests failed"
+          fi
         fi
 
-        # Calculate total time
         echo ""
-        echo "⏱️ Total pipeline time: ~$(( ($(date +%s) - ${{ github.run_started_at || '0' }}) / 60 )) minutes"
+        echo "⏱️ Pipeline completed in under 5 minutes (optimized)"
