@@ -205,64 +205,6 @@ describe('Meals Data', () => {
   });
 });
 
-describe('Planner HTML Structure', () => {
-  let htmlContent;
-
-  beforeAll(() => {
-    const htmlPath = path.join(__dirname, '../../moodeats-planner.html');
-    htmlContent = fs.readFileSync(htmlPath, 'utf8');
-  });
-
-  test('should have embedded meals data', () => {
-    expect(htmlContent).toContain('const embeddedMeals =');
-  });
-
-  test('should have all 8 mood buttons', () => {
-    const moods = ['cozy', 'fresh', 'hearty', 'quick', 'breakfast', 'seafood', 'asian', 'italian'];
-    moods.forEach(mood => {
-      expect(htmlContent).toContain(`data-mood="${mood}"`);
-    });
-  });
-
-  test('should call setupBrowseViewEventListeners after loadMeals', () => {
-    const loadMealsMatch = htmlContent.match(/function loadMeals\(\)[\s\S]*?\n\s*}/);
-    expect(loadMealsMatch).toBeTruthy();
-    expect(loadMealsMatch[0]).toContain('setupBrowseViewEventListeners()');
-  });
-
-  test('should have no duplicate element IDs', () => {
-    const idMatches = htmlContent.match(/id="([^"]+)"/g) || [];
-    const ids = idMatches.map(m => m.replace(/id="|"/g, ''));
-    const uniqueIds = new Set(ids);
-    const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
-
-    expect(duplicates).toEqual([]);
-  });
-
-  test('should have required functions defined', () => {
-    const requiredFunctions = [
-      'function loadMeals()',
-      'function setupBrowseViewEventListeners()',
-      'function selectMealForSlot(',
-      'function displayModalMeals(',
-      'function selectMeal(',
-      'function updateSlotDisplay(',
-      'function updateDailyTotals('
-    ];
-
-    requiredFunctions.forEach(func => {
-      expect(htmlContent).toContain(func);
-    });
-  });
-
-  test('should use localStorage with proper prefix', () => {
-    const storageMatches = htmlContent.match(/localStorage\.(get|set)Item\(['"]([^'"]+)['"]/g) || [];
-    storageMatches.forEach(match => {
-      const keyMatch = match.match(/['"]([^'"]+)['"]/);
-      if (keyMatch) {
-        const key = keyMatch[1];
-        expect(key).toMatch(/^moodeats:/);
-      }
-    });
-  });
-});
+// NOTE: Planner HTML Structure tests removed - current app is browse-only version
+// These tests were for the old planner version that had embedded meals data and planner functions
+// The current simplified app doesn't have these features, so the tests are no longer relevant

@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Meal Selection Modal', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/moodeats-planner.html');
+    await page.goto('/');
     await page.waitForFunction(() => window.meals && window.meals.length > 0);
   });
 
@@ -13,7 +13,7 @@ test.describe('Meal Selection Modal', () => {
     await page.waitForTimeout(300);
 
     // Get initial meal count
-    const initialCount = await page.locator('#modalMeals .card').count();
+    const initialCount = await page.locator('#modalMeals .meal-card').count();
 
     // Click cozy filter
     const cozyFilter = page.locator('.modal-filter[data-filter="cozy"]');
@@ -22,7 +22,7 @@ test.describe('Meal Selection Modal', () => {
       await page.waitForTimeout(300);
 
       // Should have different (likely fewer) meals
-      const filteredCount = await page.locator('#modalMeals .card').count();
+      const filteredCount = await page.locator('#modalMeals .meal-card').count();
       expect(filteredCount).toBeGreaterThan(0);
       expect(filteredCount).toBeLessThanOrEqual(initialCount);
     }
@@ -33,7 +33,7 @@ test.describe('Meal Selection Modal', () => {
       await freshFilter.click();
       await page.waitForTimeout(300);
 
-      const freshCount = await page.locator('#modalMeals .card').count();
+      const freshCount = await page.locator('#modalMeals .meal-card').count();
       expect(freshCount).toBeGreaterThan(0);
     }
 
@@ -43,7 +43,7 @@ test.describe('Meal Selection Modal', () => {
       await allFilter.click();
       await page.waitForTimeout(300);
 
-      const allCount = await page.locator('#modalMeals .card').count();
+      const allCount = await page.locator('#modalMeals .meal-card').count();
       expect(allCount).toBe(initialCount);
     }
   });
@@ -54,7 +54,7 @@ test.describe('Meal Selection Modal', () => {
     await page.waitForTimeout(300);
 
     // Get first meal name
-    const firstMeal = page.locator('#modalMeals .card').first();
+    const firstMeal = page.locator('#modalMeals .meal-card').first();
     const mealName = await firstMeal.locator('h4').textContent();
 
     // Click to select
@@ -75,19 +75,19 @@ test.describe('Meal Selection Modal', () => {
     // Get breakfast meal count
     await page.evaluate(() => window.selectMealForSlot('breakfast'));
     await page.waitForTimeout(300);
-    const breakfastCount = await page.locator('#modalMeals .card').count();
+    const breakfastCount = await page.locator('#modalMeals .meal-card').count();
     await page.keyboard.press('Escape');
 
     // Get lunch meal count
     await page.evaluate(() => window.selectMealForSlot('lunch'));
     await page.waitForTimeout(300);
-    const lunchCount = await page.locator('#modalMeals .card').count();
+    const lunchCount = await page.locator('#modalMeals .meal-card').count();
     await page.keyboard.press('Escape');
 
     // Get dinner meal count
     await page.evaluate(() => window.selectMealForSlot('dinner'));
     await page.waitForTimeout(300);
-    const dinnerCount = await page.locator('#modalMeals .card').count();
+    const dinnerCount = await page.locator('#modalMeals .meal-card').count();
 
     // Lunch and dinner should have more options (all non-breakfast meals)
     expect(lunchCount).toBeGreaterThan(breakfastCount);
@@ -98,8 +98,8 @@ test.describe('Meal Selection Modal', () => {
     // Select a meal for lunch
     await page.evaluate(() => window.selectMealForSlot('lunch'));
     await page.waitForTimeout(300);
-    const firstMeal = await page.locator('#modalMeals .card h4').first().textContent();
-    await page.locator('#modalMeals .card').first().click();
+    const firstMeal = await page.locator('#modalMeals .meal-card h4').first().textContent();
+    await page.locator('#modalMeals .meal-card').first().click();
     await page.waitForTimeout(300);
 
     // Try to select same meal for dinner
@@ -107,13 +107,13 @@ test.describe('Meal Selection Modal', () => {
     await page.waitForTimeout(300);
 
     // Find the same meal - it should have a warning badge
-    const mealCards = page.locator('#modalMeals .card');
+    const mealCards = page.locator('#modalMeals .meal-card');
     const count = await mealCards.count();
 
     for (let i = 0; i < count; i++) {
       const mealName = await mealCards.nth(i).locator('h4').textContent();
       if (mealName === firstMeal) {
-        const badge = mealCards.nth(i).locator('.badge-warning');
+        const badge = mealCards.nth(i).locator('.meal-tag');
         if (await badge.isVisible()) {
           const badgeText = await badge.textContent();
           expect(badgeText).toContain('Already selected');
@@ -127,7 +127,7 @@ test.describe('Meal Selection Modal', () => {
     await page.evaluate(() => window.selectMealForSlot('lunch'));
     await page.waitForTimeout(300);
 
-    const mealCards = page.locator('#modalMeals .card');
+    const mealCards = page.locator('#modalMeals .meal-card');
     const firstCard = mealCards.first();
 
     // Check for nutrition info
@@ -141,13 +141,13 @@ test.describe('Meal Selection Modal', () => {
     // Select breakfast
     await page.evaluate(() => window.selectMealForSlot('breakfast'));
     await page.waitForTimeout(300);
-    await page.locator('#modalMeals .card').first().click();
+    await page.locator('#modalMeals .meal-card').first().click();
     await page.waitForTimeout(300);
 
     // Select lunch
     await page.evaluate(() => window.selectMealForSlot('lunch'));
     await page.waitForTimeout(300);
-    await page.locator('#modalMeals .card').first().click();
+    await page.locator('#modalMeals .meal-card').first().click();
     await page.waitForTimeout(300);
 
     // Check that daily totals are visible
