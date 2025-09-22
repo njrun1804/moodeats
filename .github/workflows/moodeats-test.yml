@@ -38,11 +38,12 @@ jobs:
       if: always()
       with:
         name: coverage-report
-        path:coverage/
+        path: coverage/
 
   e2e-tests:
     runs-on: ubuntu-latest
     name: 🌐 E2E Tests
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -75,7 +76,7 @@ jobs:
       if: always()
       with:
         name: playwright-report-${{ matrix.browser }}
-        path:playwright-report/
+        path: playwright-report/
         retention-days: 30
 
   mobile-tests:

@@ -126,6 +126,7 @@ jobs:
     runs-on: ubuntu-latest
     name: 🌐 E2E Chrome
     needs: quick-checks
+    timeout-minutes: 10
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
@@ -161,6 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     name: 🌐 E2E Firefox
     needs: quick-checks
+    timeout-minutes: 10
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
