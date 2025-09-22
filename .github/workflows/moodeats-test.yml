@@ -19,21 +19,18 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: moodeats/package-lock.json
+        cache-dependency-path: package-lock.json
 
     - name: Install dependencies
       run: |
-        cd moodeats
         npm ci
 
     - name: Run Jest unit tests
       run: |
-        cd moodeats
         npm run test:unit
 
     - name: Generate coverage report
       run: |
-        cd moodeats
         npm run test:coverage
 
     - name: Upload coverage reports
@@ -41,7 +38,7 @@ jobs:
       if: always()
       with:
         name: coverage-report
-        path: moodeats/coverage/
+        path:coverage/
 
   e2e-tests:
     runs-on: ubuntu-latest
@@ -59,21 +56,18 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: moodeats/package-lock.json
+        cache-dependency-path: package-lock.json
 
     - name: Install dependencies
       run: |
-        cd moodeats
         npm ci
 
     - name: Install Playwright browsers
       run: |
-        cd moodeats
         npx playwright install --with-deps ${{ matrix.browser }}
 
     - name: Run Playwright tests on ${{ matrix.browser }}
       run: |
-        cd moodeats
         npx playwright test --project=${{ matrix.browser }}
 
     - name: Upload Playwright report
@@ -81,7 +75,7 @@ jobs:
       if: always()
       with:
         name: playwright-report-${{ matrix.browser }}
-        path: moodeats/playwright-report/
+        path:playwright-report/
         retention-days: 30
 
   mobile-tests:
@@ -96,21 +90,18 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: moodeats/package-lock.json
+        cache-dependency-path: package-lock.json
 
     - name: Install dependencies
       run: |
-        cd moodeats
         npm ci
 
     - name: Install Playwright browsers
       run: |
-        cd moodeats
         npx playwright install --with-deps chromium webkit
 
     - name: Run mobile tests
       run: |
-        cd moodeats
         npx playwright test --project="Mobile Chrome"
         npx playwright test --project="Mobile Safari"
 
@@ -119,7 +110,7 @@ jobs:
       if: always()
       with:
         name: mobile-test-results
-        path: moodeats/test-results/
+        path:test-results/
 
   lint:
     runs-on: ubuntu-latest
@@ -133,22 +124,19 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: moodeats/package-lock.json
-        cache-dependency-path: moodeats/package-lock.json
+        cache-dependency-path: package-lock.json
+        cache-dependency-path: package-lock.json
 
     - name: Install dependencies
       run: |
-        cd moodeats
         npm ci
 
     - name: Run ESLint
       run: |
-        cd moodeats
         npm run lint || true  # Don't fail on lint errors for now
 
     - name: Check JSON validity
       run: |
-        cd moodeats
         echo "Validating meals.json..."
         python3 -m json.tool meals.json > /dev/null
         echo "✅ meals.json is valid JSON"
