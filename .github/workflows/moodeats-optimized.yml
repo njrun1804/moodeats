@@ -27,9 +27,6 @@ jobs:
     name: ⚡ Quick Checks
     steps:
     - uses: actions/checkout@v3
-      with:
-        sparse-checkout: |
-          moodeats
 
     - name: Validate JSON
       run: |
@@ -75,9 +72,6 @@ jobs:
     needs: quick-checks
     steps:
     - uses: actions/checkout@v3
-      with:
-        sparse-checkout: |
-          moodeats
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
