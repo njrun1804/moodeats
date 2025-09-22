@@ -93,6 +93,17 @@ function expandSearchTermsWithSemantics(query) {
     return [...new Set(expandedTerms)]; // Remove duplicates
 }
 
+function isValidSearchTerm(term) {
+    // Filter out unwanted terms
+    if (term.length < 3) return false;
+    if (term.includes('(') || term.includes(')')) return false;
+    if (term.includes('${') || term.includes('}')) return false; // Template literals
+    if (term.includes('undefined') || term.includes('null')) return false;
+    if (term.match(/^\d+$/)) return false; // Pure numbers
+    if (term.includes('function') || term.includes('object')) return false;
+    return true;
+}
+
 function buildSearchableTerms() {
     const terms = new Set();
 
@@ -115,50 +126,52 @@ function buildSearchableTerms() {
     ];
 
     const searchableTerms = [];
+    const usedTerms = new Set();
 
+    // Add predefined categories
     termCategories.forEach(({category, items}) => {
         items.forEach(item => {
-            searchableTerms.push({
-                value: item,
-                category: category,
-                searchBy: item.toLowerCase()
-            });
+            const cleanItem = item.toLowerCase().trim();
+            if (!usedTerms.has(cleanItem)) {
+                searchableTerms.push({
+                    value: item,
+                    category: category,
+                    searchBy: cleanItem
+                });
+                usedTerms.add(cleanItem);
+            }
         });
     });
 
-    // Add specific terms from actual meal data
+    // Add specific terms from actual meal data (filtered and cleaned)
+
     meals.forEach(meal => {
-        // Add meal name words
-        meal.name.toLowerCase().split(/\s+/).forEach(word => {
-            if (word.length > 2 && !searchableTerms.find(t => t.value === word)) {
-                searchableTerms.push({
-                    value: word,
-                    category: 'meal-name',
-                    searchBy: word
-                });
-            }
-        });
-
-        // Add search terms
+        // Add search terms (these are usually clean)
         meal.searchTerms.forEach(term => {
-            if (!searchableTerms.find(t => t.value === term)) {
+            const cleanTerm = term.toLowerCase().trim();
+            if (isValidSearchTerm(cleanTerm) && !usedTerms.has(cleanTerm)) {
                 searchableTerms.push({
-                    value: term,
+                    value: cleanTerm,
                     category: 'search-term',
-                    searchBy: term.toLowerCase()
+                    searchBy: cleanTerm
                 });
+                usedTerms.add(cleanTerm);
             }
         });
 
-        // Add core ingredients
+        // Add core ingredients (cleaned)
         meal.ingredients.core.forEach(ingredient => {
-            const cleanIngredient = ingredient.toLowerCase().replace(/[()]/g, '').trim();
-            if (cleanIngredient.length > 2 && !searchableTerms.find(t => t.value === cleanIngredient)) {
+            const cleanIngredient = ingredient.toLowerCase()
+                .replace(/[()]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+            if (isValidSearchTerm(cleanIngredient) && !usedTerms.has(cleanIngredient)) {
                 searchableTerms.push({
                     value: cleanIngredient,
                     category: 'ingredient',
                     searchBy: cleanIngredient
                 });
+                usedTerms.add(cleanIngredient);
             }
         });
     });
@@ -212,7 +225,7 @@ function initializeTagifySearch() {
         dropdown: {
             maxItems: 20,
             classname: 'tags-look',
-            enabled: 0,
+            enabled: 2,
             closeOnSelect: false,
             fuzzySearch: true,
             searchKeys: ['value']
