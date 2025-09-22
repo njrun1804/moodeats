@@ -116,14 +116,29 @@
         opacity: 0.6 !important;
       }
 
-      /* Hide placeholder when typing */
-      .tagify__input:not(:empty)::before {
-        opacity: 0 !important;
+      /* Hide placeholder when there's text or tags */
+      .tagify--hasMaxTags .tagify__input::before,
+      .tagify--select .tagify__input::before,
+      .tagify--focus .tagify__input:not(:empty)::before,
+      .tagify__input:not(:placeholder-shown)::before,
+      .tagify--noTags.tagify--focus .tagify__input::before {
+        display: none !important;
       }
 
-      /* Ensure typed text is visible */
+      /* Hide placeholder when input has any text content */
+      .tagify__input[contenteditable]:not(:empty)::before {
+        display: none !important;
+      }
+
+      /* Ensure typed text is visible and properly styled */
       .tagify__input {
         min-width: auto !important;
+        color: #374151 !important;
+      }
+
+      /* Additional rule to hide placeholder during typing */
+      .tagify__input[data-placeholder]:not(:empty)::before {
+        content: none !important;
       }
 
       /* Fix the X button styling */
