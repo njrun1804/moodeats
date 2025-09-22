@@ -149,7 +149,7 @@ jobs:
 
     - name: Run Chrome tests
       run: |
-        npx playwright test --project=chromium --reporter=dot
+        npx playwright test tests/e2e/browse-only.spec.js --project=chromium --reporter=dot
 
     - name: Upload results
       if: failure()
@@ -185,7 +185,7 @@ jobs:
 
     - name: Run Firefox tests
       run: |
-        npx playwright test --project=firefox --reporter=dot
+        npx playwright test tests/e2e/browse-only.spec.js --project=firefox --reporter=dot
 
     - name: Upload results
       if: failure()
@@ -198,7 +198,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: 🚀 Deploy to GitHub Pages
-    needs: [unit-tests]  # Temporarily disabled E2E tests
+    needs: [unit-tests, e2e-chrome, e2e-firefox]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read

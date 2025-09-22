@@ -63,12 +63,11 @@ const bundle = `// MoodEats Browse-Only Bundle
 // Write the bundle
 fs.writeFileSync(path.join(outputDir, 'moodeats-simple.js'), bundle);
 
-// Update main index.html
-fs.copyFileSync(path.join(__dirname, '..', 'index-simple.html'), path.join(__dirname, '..', 'index.html'));
+// index.html already exists, no need to copy
+// fs.copyFileSync(path.join(__dirname, '..', 'index-simple.html'), path.join(__dirname, '..', 'index.html'));
 
-// Also copy to repository root for GitHub Pages
-fs.writeFileSync(path.join(__dirname, '..', '..', 'index.html'), fs.readFileSync(path.join(__dirname, '..', 'index.html')));
-fs.writeFileSync(path.join(__dirname, '..', '..', 'dist', 'moodeats-simple.js'), bundle);
+// GitHub Pages deployment handled by CI/CD
+// No need to copy files to parent directories
 
 // Copy CSS if it exists
 const cssDir = path.join(__dirname, '..', 'src', 'css');

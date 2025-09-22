@@ -1,6 +1,3 @@
-// Nutrition estimates for all meals
-// Contains protein, carbs, fat, and calories for each meal
-
 const nutritionEstimates = {
             // Breakfast meals with real data from meals.json
             "Greek Yogurt Parfait with Berries & Muesli": { protein: 25, carbs: 68, fat: 10, calories: 462 },

@@ -8,14 +8,17 @@ module.exports = defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: process.env.CI ? 'dot' : 'html',
+  timeout: 30000,
 
   use: {
     baseURL: 'http://localhost:8000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    actionTimeout: 10000,
+    navigationTimeout: 30000,
   },
 
   projects: [
@@ -43,7 +46,10 @@ module.exports = defineConfig({
 
   webServer: {
     command: 'python3 -m http.server 8000',
-    url: 'http://localhost:8000',
+    port: 8000,
+    timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 });

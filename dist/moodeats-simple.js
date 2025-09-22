@@ -1,14 +1,11 @@
-// MoodEats Compact Grid Version
+// MoodEats Browse-Only Bundle
 // Generated from src/js/* files
 
 (function() {
     'use strict';
 
     // ===== MEALS DATA =====
-
-
-
-const embeddedMeals = [
+    const embeddedMeals = [
   {
     "name": "Greek Yogurt Parfait with Berries & Muesli",
     "category": "breakfast",
@@ -755,10 +752,7 @@ const embeddedMeals = [
 
 
     // ===== NUTRITION DATA =====
-
-
-
-const nutritionEstimates = {
+    const nutritionEstimates = {
             // Breakfast meals with real data from meals.json
             "Greek Yogurt Parfait with Berries & Muesli": { protein: 25, carbs: 68, fat: 10, calories: 462 },
             "Oatmeal with Banana & PB": { protein: 10, carbs: 58, fat: 11, calories: 371 },
@@ -859,12 +853,7 @@ const nutritionEstimates = {
 
 
     // ===== MAIN APPLICATION =====
-
-
-
-
-
-let meals = [];
+    let meals = [];
 let fuse;
 let currentMood = 'all';
 let selectedMeal = null;
@@ -1192,7 +1181,7 @@ function closeModal() {
     document.getElementById('mealModal').classList.remove('open');
 }
 
-// Make closeModal available globally for onclick handler
+
 window.closeModal = closeModal;
 
 
@@ -1206,17 +1195,32 @@ window.loadMeals = loadMeals;
 
 
 
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Initializing MoodEats Compact Grid...');
+        if (typeof initializeApp === 'function') {
+            initializeApp();
+        }
+    });
+} else {
+    console.log('Initializing MoodEats Compact Grid (DOM ready)...');
+    if (typeof initializeApp === 'function') {
+        initializeApp();
+    }
+}
+
+
 
     // Auto-initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Initializing MoodEats Compact Grid...');
+            console.log('Initializing MoodEats Browse...');
             if (typeof initializeApp === 'function') {
                 initializeApp();
             }
         });
     } else {
-        console.log('Initializing MoodEats Compact Grid (DOM ready)...');
+        console.log('Initializing MoodEats Browse (DOM ready)...');
         if (typeof initializeApp === 'function') {
             initializeApp();
         }
