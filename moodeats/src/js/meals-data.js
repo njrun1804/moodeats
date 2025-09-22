@@ -741,7 +741,6 @@ const embeddedMeals = [
       "pantry": ["Olive oil", "Chicken stock", "Salt", "Pepper"]
     },
     "searchTerms": ["mashed potatoes", "no cream", "olive oil", "comfort", "classic"]
-  }
-];
-
+  },
+  {
 export { embeddedMeals };

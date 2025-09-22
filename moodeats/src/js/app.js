@@ -290,18 +290,19 @@ window.loadPlanByDate = loadPlanByDate;
 window.loadMeals = loadMeals;
 window.setupAllEventListeners = setupAllEventListeners;
 
-// Initialize the date display
-function setCurrentDate() {
-    const dateElement = document.getElementById('currentDate');
-    if (dateElement) {
-        dateElement.textContent = new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    }
-}
+// Set current date
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
 
-// Export for bundling
-window.setCurrentDate = setCurrentDate;
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
+    }
+});
