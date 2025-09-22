@@ -79,67 +79,7 @@
         box-shadow: 0 0 0 1px #3b82f6;
       }
 
-      .tagify__tag {
-        background: #3b82f6 !important;
-        color: white !important;
-        border-radius: 4px;
-        margin: 2px;
-        padding: 4px 8px;
-        font-size: 13px;
-        border: none !important;
-      }
-
-      .tagify__tag:hover {
-        background: #2563eb !important;
-      }
-
-      .tagify__tag--ingredient {
-        background: #10b981 !important;
-        color: white !important;
-      }
-
-      .tagify__tag--mood {
-        background: #f59e0b !important;
-        color: white !important;
-      }
-
-      .tagify__tag--cuisine {
-        background: #8b5cf6 !important;
-        color: white !important;
-      }
-
-      /* Ensure tag text is always white - Safari fix */
-      .tagify__tag > div,
-      .tagify__tag > div > span,
-      .tagify__tag span.tagify__tag-text {
-        color: white !important;
-        -webkit-text-fill-color: white !important;
-      }
-
-      .tagify__tag-text {
-        color: white !important;
-        -webkit-text-fill-color: white !important;
-      }
-
-      /* Safari-specific fix for tag text */
-      .tagify__tag * {
-        color: inherit !important;
-        -webkit-text-fill-color: inherit !important;
-      }
-
-
-      /* Fix the X button styling */
-      .tagify__tag__removeBtn {
-        color: white !important;
-        opacity: 0.7;
-        margin-left: 4px;
-        font-size: 16px;
-        line-height: 1;
-      }
-
-      .tagify__tag__removeBtn:hover {
-        opacity: 1;
-      }
+      /* Let Tagify handle all tag styling - no customization */
 
       .tagify__dropdown {
         border: 1px solid #d1d5db;
@@ -155,32 +95,9 @@
         font-size: 14px;
       }
 
-      .tagify__dropdown__item:hover,
+      /* Minimal dropdown styling */
       .tagify__dropdown__item--active {
-        background: #3b82f6;
-        color: white;
-      }
-
-      .tagify__dropdown__item:hover .tagify__dropdown__item__category,
-      .tagify__dropdown__item--active .tagify__dropdown__item__category {
-        color: rgba(255, 255, 255, 0.8);
-      }
-
-      .tagify__dropdown__item__text {
-        font-weight: 500;
-      }
-
-      .tagify__dropdown__item__category {
-        font-size: 11px;
-        color: #9ca3af;
-        margin-left: auto;
-        padding-left: 8px;
-      }
-
-      .tagify__dropdown__item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        background: #e5e7eb;
       }
 
       .mood-pills {

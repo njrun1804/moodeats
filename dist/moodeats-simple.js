@@ -1093,40 +1093,7 @@ function initializeTagifySearch() {
             rightKey: true
         },
         placeholder: 'Type to search ingredients, moods, cuisines...',
-        tabIndex: 0,
-        templates: {
-            tag: function(tagData) {
-                return `<tag title="${tagData.value}"
-                        contenteditable='false'
-                        spellcheck='false'
-                        tabIndex="-1"
-                        class="tagify__tag tagify__tag--${tagData.category || 'default'}"
-                        ${this.getAttributes(tagData)}>
-                    <span title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'>×</span>
-                    <div>
-                        <span class='tagify__tag-text'>${tagData.value}</span>
-                    </div>
-                </tag>`;
-            },
-            dropdownItem: function(tagData) {
-                const categoryLabel = {
-                    'ingredient': 'ingredient',
-                    'mood': 'mood',
-                    'cuisine': 'cuisine',
-                    'meal-type': 'meal',
-                    'cooking': 'method',
-                    'search-term': ''
-                };
-                const category = categoryLabel[tagData.category] || '';
-                return `<div ${this.getAttributes(tagData)}
-                        class='tagify__dropdown__item ${tagData.category ? 'tagify__dropdown__item--' + tagData.category : ''}'
-                        tabindex="0"
-                        role="option">
-                    <span class='tagify__dropdown__item__text'>${tagData.value}</span>
-                    ${category ? `<span class='tagify__dropdown__item__category'>${category}</span>` : ''}
-                </div>`;
-            }
-        }
+        tabIndex: 0
     });
 
     // Handle tag changes
