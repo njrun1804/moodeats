@@ -247,7 +247,7 @@ function initializeTagifySearch() {
                         tabIndex="-1"
                         class="tagify__tag tagify__tag--${tagData.category || 'default'}"
                         ${this.getAttributes(tagData)}>
-                    <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
+                    <span title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'>×</span>
                     <div>
                         <span class='tagify__tag-text'>${tagData.value}</span>
                     </div>
