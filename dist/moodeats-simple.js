@@ -1073,9 +1073,6 @@ function initializeTagifySearch() {
     // Build searchable terms from meal data
     const searchableTerms = buildSearchableTerms();
 
-    // Clear the original placeholder to prevent overlap issues
-    searchInput.removeAttribute('placeholder');
-
     // Initialize Tagify
     searchTagify = new Tagify(searchInput, {
         whitelist: searchableTerms,
