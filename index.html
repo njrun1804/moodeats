@@ -113,7 +113,17 @@
       /* Fix the input field placeholder and typing appearance */
       .tagify__input::before {
         color: #9ca3af !important;
-        opacity: 1 !important;
+        opacity: 0.6 !important;
+      }
+
+      /* Hide placeholder when typing */
+      .tagify__input:not(:empty)::before {
+        opacity: 0 !important;
+      }
+
+      /* Ensure typed text is visible */
+      .tagify__input {
+        min-width: auto !important;
       }
 
       /* Fix the X button styling */
