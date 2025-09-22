@@ -108,13 +108,23 @@
         color: white !important;
       }
 
-      /* Ensure tag text is always white */
-      .tagify__tag > div {
+      /* Ensure tag text is always white - Safari fix */
+      .tagify__tag > div,
+      .tagify__tag > div > span,
+      .tagify__tag span.tagify__tag-text {
         color: white !important;
+        -webkit-text-fill-color: white !important;
       }
 
       .tagify__tag-text {
         color: white !important;
+        -webkit-text-fill-color: white !important;
+      }
+
+      /* Safari-specific fix for tag text */
+      .tagify__tag * {
+        color: inherit !important;
+        -webkit-text-fill-color: inherit !important;
       }
 
 
