@@ -34,25 +34,7 @@ test.describe('MoodEats Browse-Only', () => {
         expect(mealText.length).toBeGreaterThan(0);
     });
 
-    test('search functionality works', async ({ page }) => {
-        // Type in search
-        await page.fill('#searchInput', 'pasta');
-
-        // Wait for search results
-        await page.waitForTimeout(1000);
-
-        // Check that results are filtered
-        const mealCards = page.locator('#mealSuggestions .meal-card');
-        const count = await mealCards.count();
-        expect(count).toBeGreaterThan(0);
-
-        // Verify pasta-related meals appear
-        const meals = await mealCards.allTextContents();
-        const hasPasta = meals.some(meal => meal.toLowerCase().includes('pasta') ||
-                                            meal.toLowerCase().includes('spaghetti') ||
-                                            meal.toLowerCase().includes('linguine'));
-        expect(hasPasta).toBeTruthy();
-    });
+    // Search functionality is comprehensively tested in tag-search.spec.js
 
     test('mood tags are displayed', async ({ page }) => {
         // Click on a mood
@@ -104,8 +86,7 @@ test.describe('MoodEats Browse-Only', () => {
             const count = await mealCards.count();
             expect(count).toBeGreaterThan(0);
 
-            // Clear search for next test
-            await page.fill('#searchInput', '');
+            // Wait between mood tests
             await page.waitForTimeout(500);
         }
     });

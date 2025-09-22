@@ -171,7 +171,7 @@ jobs:
 
     - name: Run E2E tests
       run: |
-        npx playwright test tests/e2e/browse-only.spec.js --project=${{ matrix.browser }} --reporter=dot
+        npx playwright test tests/e2e/browse-only.spec.js tests/e2e/tag-search.spec.js --project=${{ matrix.browser }} --reporter=dot
 
     - name: Upload results
       if: failure()
