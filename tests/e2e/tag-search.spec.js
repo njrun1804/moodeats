@@ -8,6 +8,21 @@ test.describe('MoodEats Tag Search Functionality', () => {
         await page.waitForTimeout(2000);
     });
 
+    // Helper function to handle both Tagify and fallback search
+    async function performSearch(page, query) {
+        const hasTagify = await page.locator('.tagify').isVisible().catch(() => false);
+
+        if (hasTagify) {
+            await page.locator('.tagify__input').fill(query);
+            if (query) {
+                await page.keyboard.press('Enter');
+            }
+        } else {
+            await page.fill('#searchInput', query);
+        }
+        await page.waitForTimeout(1000);
+    }
+
     test('search input transforms to Tagify or falls back gracefully', async ({ page }) => {
         const searchInput = page.locator('#searchInput');
         await expect(searchInput).toBeVisible();
@@ -26,11 +41,8 @@ test.describe('MoodEats Tag Search Functionality', () => {
     });
 
     test('tag search with single term works', async ({ page }) => {
-        const searchInput = page.locator('#searchInput');
-
         // Try typing a term - this should work with both Tagify and fallback
-        await searchInput.fill('pasta');
-        await page.waitForTimeout(1000);
+        await performSearch(page, 'pasta');
 
         // Check that results are shown
         const mealCards = page.locator('#mealSuggestions .meal-card');
@@ -51,10 +63,7 @@ test.describe('MoodEats Tag Search Functionality', () => {
         // This is the core test for the original bug fix
 
         // Test 1: Search for "eggs" alone
-        await page.fill('#searchInput', '');
-        await page.waitForTimeout(500);
-        await page.fill('#searchInput', 'eggs');
-        await page.waitForTimeout(1000);
+        await performSearch(page, 'eggs');
 
         const eggMeals = await page.locator('#mealSuggestions .meal-card').allTextContents();
         const eggMealCount = eggMeals.length;
@@ -69,18 +78,14 @@ test.describe('MoodEats Tag Search Functionality', () => {
         expect(allHaveEggs).toBeTruthy();
 
         // Test 2: Search for "quick" alone
-        await page.fill('#searchInput', '');
-        await page.waitForTimeout(500);
-        await page.fill('#searchInput', 'quick');
-        await page.waitForTimeout(1000);
+        await performSearch(page, 'quick');
 
         const quickMeals = await page.locator('#mealSuggestions .meal-card').allTextContents();
         const quickMealCount = quickMeals.length;
         expect(quickMealCount).toBeGreaterThan(0);
 
         // Clear for next test
-        await page.fill('#searchInput', '');
-        await page.waitForTimeout(500);
+        await performSearch(page, '');
     });
 
     test('Pasta e Piselli does not appear in egg searches', async ({ page }) => {

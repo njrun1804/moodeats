@@ -1080,6 +1080,7 @@ function initializeTagifySearch() {
             rightKey: true
         },
         placeholder: 'Type to search ingredients, moods, cuisines...',
+        tabIndex: 0,
         templates: {
             tag: function(tagData) {
                 return `<tag title="${tagData.value}"
