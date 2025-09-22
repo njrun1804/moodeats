@@ -8,7 +8,7 @@ test.describe('MoodEats Browse-Only', () => {
 
     test('page loads with mood buttons', async ({ page }) => {
         // Check title in header bar
-        await expect(page.locator('.title-logo')).toContainText('MoodEats');
+        await expect(page.locator('.title-logo')).toContainText('🍽️ MoodEats');
 
         // Check mood buttons exist (9 including "All" button)
         const moodButtons = page.locator('.mood-btn');

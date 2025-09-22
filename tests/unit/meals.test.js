@@ -178,6 +178,28 @@ describe('Meals Data', () => {
       );
       expect(salmonMeals.length).toBeGreaterThanOrEqual(3);
     });
+
+    test('all fish meals should have "fish" in searchTerms for semantic search', () => {
+      const fishMeals = meals.filter(m =>
+        m.name.toLowerCase().includes('salmon') ||
+        m.name.toLowerCase().includes('fish') ||
+        m.ingredients.core.some(ingredient =>
+          ingredient.toLowerCase().includes('salmon') ||
+          ingredient.toLowerCase().includes('fish')
+        )
+      );
+
+      fishMeals.forEach(meal => {
+        const hasSeafoodTerm = meal.searchTerms.some(term =>
+          term.toLowerCase().includes('fish') ||
+          term.toLowerCase().includes('seafood')
+        );
+        if (!hasSeafoodTerm) {
+          console.log('Fish meal missing term:', meal.name, 'searchTerms:', meal.searchTerms);
+        }
+        expect(hasSeafoodTerm).toBe(true);
+      });
+    });
   });
 
   describe('Data Consistency', () => {
@@ -201,6 +223,94 @@ describe('Meals Data', () => {
           expect(term.length).toBeGreaterThan(0);
         });
       });
+    });
+  });
+
+  describe('Semantic Search Compatibility Tests', () => {
+    // Test that all fish dishes now have proper search terms for semantic matching
+    test('fish search should find all salmon dishes via searchTerms', () => {
+      const salmonMeals = meals.filter(meal =>
+        meal.name.toLowerCase().includes('salmon')
+      );
+
+      // All salmon meals should now have "fish" in their searchTerms
+      salmonMeals.forEach(meal => {
+        const hasSeafoodTerm = meal.searchTerms.some(term =>
+          term.toLowerCase().includes('fish') ||
+          term.toLowerCase().includes('seafood')
+        );
+        if (!hasSeafoodTerm) {
+          console.log('Missing fish/seafood term:', meal.name, 'searchTerms:', meal.searchTerms);
+        }
+        expect(hasSeafoodTerm).toBe(true);
+      });
+
+      expect(salmonMeals.length).toBeGreaterThanOrEqual(5);
+    });
+
+    test('seafood meals should be properly categorized', () => {
+      const seafoodMeals = meals.filter(meal =>
+        meal.moods.includes('seafood') ||
+        meal.category === 'seafood'
+      );
+
+      expect(seafoodMeals.length).toBeGreaterThan(5);
+
+      // Each seafood meal should have relevant search terms
+      seafoodMeals.forEach(meal => {
+        const hasSeafoodTerm = meal.searchTerms.some(term =>
+          ['fish', 'seafood', 'salmon', 'crab', 'shrimp', 'clams'].includes(term.toLowerCase())
+        );
+        if (!hasSeafoodTerm) {
+          console.log('Seafood meal missing term:', meal.name, 'searchTerms:', meal.searchTerms);
+        }
+        expect(hasSeafoodTerm).toBe(true);
+      });
+    });
+
+    test('data structure supports semantic search patterns', () => {
+      // Test that meals have the structure needed for semantic search
+      meals.forEach(meal => {
+        expect(meal).toHaveProperty('name');
+        expect(meal).toHaveProperty('searchTerms');
+        expect(meal).toHaveProperty('ingredients');
+        expect(meal.ingredients).toHaveProperty('core');
+
+        // Search terms should be an array of strings
+        expect(Array.isArray(meal.searchTerms)).toBe(true);
+        meal.searchTerms.forEach(term => {
+          expect(typeof term).toBe('string');
+          expect(term.length).toBeGreaterThan(0);
+        });
+      });
+    });
+
+    test('semantic categories have representative meals', () => {
+      // Fish/seafood category
+      const fishMeals = meals.filter(meal =>
+        meal.searchTerms.some(term => ['fish', 'seafood'].includes(term.toLowerCase())) ||
+        meal.ingredients.core.some(ingredient =>
+          ['salmon', 'fish', 'crab', 'shrimp'].some(fish =>
+            ingredient.toLowerCase().includes(fish)
+          )
+        )
+      );
+      expect(fishMeals.length).toBeGreaterThan(5);
+
+      // Pasta category
+      const pastaMeals = meals.filter(meal =>
+        meal.searchTerms.some(term => term.toLowerCase().includes('pasta')) ||
+        meal.name.toLowerCase().includes('linguine') ||
+        meal.name.toLowerCase().includes('spaghetti')
+      );
+      expect(pastaMeals.length).toBeGreaterThan(3);
+
+      // Asian category
+      const asianMeals = meals.filter(meal =>
+        meal.moods.includes('asian') ||
+        meal.searchTerms.some(term => ['japanese', 'teriyaki', 'asian'].includes(term.toLowerCase()))
+      );
+      expect(asianMeals.length).toBeGreaterThan(5);
     });
   });
 });

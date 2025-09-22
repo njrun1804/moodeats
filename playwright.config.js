@@ -14,7 +14,7 @@ module.exports = defineConfig({
   timeout: 30000,
 
   use: {
-    baseURL: 'http://localhost:8000',
+    baseURL: 'http://localhost:8001',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 10000,
@@ -45,8 +45,8 @@ module.exports = defineConfig({
   ],
 
   webServer: {
-    command: 'python3 -m http.server 8000',
-    port: 8000,
+    command: 'python3 -m http.server 8001',
+    port: 8001,
     timeout: 120 * 1000,
     reuseExistingServer: true,  // Always reuse - CI starts server in workflow
     stdout: 'pipe',

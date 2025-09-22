@@ -287,7 +287,7 @@ const embeddedMeals = [
       "core": ["Salmon", "Miso paste", "Rice"],
       "pantry": ["Sugar", "Sake or mirin", "Sesame oil"]
     },
-    "searchTerms": ["miso", "salmon", "glazed", "japanese", "umami", "seafood"]
+    "searchTerms": ["miso", "salmon", "glazed", "japanese", "umami", "seafood", "fish"]
   },
   {
     "name": "Yakitori-Style Chicken (Broiler)",
@@ -477,7 +477,7 @@ const embeddedMeals = [
       "core": ["Salmon", "Small potatoes"],
       "pantry": ["Olive oil", "Garlic", "Dill", "Salt", "Pepper"]
     },
-    "searchTerms": ["salmon", "potatoes", "smashed", "crispy", "dill", "hearty"]
+    "searchTerms": ["salmon", "potatoes", "smashed", "crispy", "dill", "hearty", "fish"]
   },
   {
     "name": "Linguine with Clams",
@@ -527,7 +527,7 @@ const embeddedMeals = [
       "core": ["Salmon", "Dill"],
       "pantry": ["Mayo", "Lemon", "Garlic", "Salt", "Pepper"]
     },
-    "searchTerms": ["salmon", "dill", "mayo", "creamy", "quick", "easy"]
+    "searchTerms": ["salmon", "dill", "mayo", "creamy", "quick", "easy", "fish"]
   },
   {
     "name": "Crab Linguine (Zest, Not Juicy)",
@@ -677,7 +677,7 @@ const embeddedMeals = [
       "core": ["Canned salmon", "Rye bread", "Dill"],
       "pantry": ["Mayonnaise", "Capers (rinsed)", "Lemon zest", "Black pepper"]
     },
-    "searchTerms": ["salmon salad", "rye", "deli", "lunch", "classic"]
+    "searchTerms": ["salmon salad", "rye", "deli", "lunch", "classic", "fish"]
   },
   {
     "name": "Seared Zucchini with Butter-Soy",

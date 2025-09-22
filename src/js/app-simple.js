@@ -3,6 +3,124 @@ let fuse;
 let currentMood = 'all';
 let selectedMeal = null;
 
+// Comprehensive food semantic mapping for domain-specific search
+const foodSemantics = {
+    // Proteins
+    fish: ['salmon', 'tuna', 'cod', 'halibut', 'whitefish', 'trout', 'mahi', 'sea bass', 'bass', 'tilapia', 'sole', 'flounder', 'snapper', 'mackerel'],
+    seafood: ['shrimp', 'crab', 'lobster', 'scallops', 'mussels', 'clams', 'oysters', 'calamari', 'squid', 'octopus'],
+    meat: ['beef', 'chicken', 'pork', 'turkey', 'lamb', 'duck', 'venison', 'bison', 'sausage', 'bacon', 'ham'],
+    poultry: ['chicken', 'turkey', 'duck', 'goose', 'quail'],
+
+    // Carbs & Grains
+    pasta: ['spaghetti', 'penne', 'rigatoni', 'fettuccine', 'linguine', 'angel hair', 'fusilli', 'bow tie', 'farfalle', 'macaroni', 'shells', 'rotini', 'ravioli', 'lasagna', 'gnocchi'],
+    noodles: ['ramen', 'udon', 'soba', 'rice noodles', 'egg noodles', 'lo mein', 'pad thai noodles'],
+    grain: ['rice', 'quinoa', 'barley', 'bulgur', 'farro', 'wheat', 'oats', 'buckwheat', 'millet', 'couscous'],
+    bread: ['baguette', 'sourdough', 'rye', 'pumpernickel', 'focaccia', 'ciabatta', 'pita', 'naan', 'tortilla', 'bagel'],
+    rice: ['brown rice', 'white rice', 'jasmine', 'basmati', 'arborio', 'wild rice', 'sticky rice'],
+
+    // Vegetables
+    vegetable: ['broccoli', 'cauliflower', 'carrots', 'zucchini', 'squash', 'bell peppers', 'peppers', 'onions', 'tomatoes', 'mushrooms', 'eggplant', 'asparagus', 'brussels sprouts', 'cabbage'],
+    greens: ['spinach', 'arugula', 'kale', 'lettuce', 'chard', 'collard greens', 'mustard greens', 'watercress', 'endive', 'romaine', 'baby greens'],
+    pepper: ['bell pepper', 'jalapeño', 'serrano', 'poblano', 'habanero', 'chipotle', 'cayenne', 'paprika'],
+    mushroom: ['button', 'cremini', 'portobello', 'shiitake', 'oyster', 'chanterelle', 'morel', 'porcini'],
+    tomato: ['cherry tomatoes', 'roma', 'beefsteak', 'heirloom', 'grape tomatoes', 'plum tomatoes'],
+    onion: ['yellow onion', 'white onion', 'red onion', 'shallot', 'scallion', 'green onion', 'leek'],
+
+    // Legumes
+    bean: ['black beans', 'kidney beans', 'chickpeas', 'garbanzo', 'lentils', 'white beans', 'navy beans', 'pinto beans', 'lima beans', 'cannellini', 'fava beans'],
+    lentil: ['red lentils', 'green lentils', 'brown lentils', 'yellow lentils', 'black lentils'],
+
+    // Dairy & Cheese
+    cheese: ['mozzarella', 'cheddar', 'parmesan', 'parmigiano', 'goat cheese', 'feta', 'swiss', 'gruyere', 'brie', 'camembert', 'blue cheese', 'ricotta', 'provolone', 'manchego'],
+    dairy: ['milk', 'cream', 'butter', 'yogurt', 'sour cream', 'crème fraîche'],
+
+    // Fruits
+    fruit: ['apple', 'banana', 'orange', 'lemon', 'lime', 'berries', 'grapes', 'pear', 'peach', 'plum', 'mango', 'pineapple', 'strawberry', 'blueberry'],
+    berry: ['strawberry', 'blueberry', 'raspberry', 'blackberry', 'cranberry', 'gooseberry'],
+    citrus: ['lemon', 'lime', 'orange', 'grapefruit', 'tangerine', 'mandarin'],
+
+    // Herbs & Spices
+    herb: ['basil', 'oregano', 'thyme', 'rosemary', 'sage', 'cilantro', 'parsley', 'dill', 'chives', 'mint', 'tarragon', 'bay leaves'],
+    spice: ['cumin', 'paprika', 'turmeric', 'coriander', 'cardamom', 'cinnamon', 'ginger', 'garlic', 'black pepper', 'cayenne', 'chili powder'],
+
+    // Cooking Methods & Styles
+    cooking: ['grilled', 'baked', 'roasted', 'sautéed', 'braised', 'steamed', 'fried', 'poached', 'pan-seared', 'broiled'],
+    texture: ['crispy', 'creamy', 'crunchy', 'tender', 'flaky', 'smooth', 'chunky'],
+
+    // Cuisine Types
+    asian: ['chinese', 'japanese', 'thai', 'korean', 'vietnamese', 'indian', 'teriyaki', 'stir fry', 'curry'],
+    italian: ['pasta', 'pizza', 'risotto', 'carbonara', 'marinara', 'pesto', 'alfredo', 'bolognese'],
+    mexican: ['tacos', 'burritos', 'quesadillas', 'enchiladas', 'salsa', 'guacamole', 'tortilla'],
+    mediterranean: ['hummus', 'tzatziki', 'olives', 'feta', 'olive oil', 'pita'],
+
+    // Meal Types
+    breakfast: ['eggs', 'pancakes', 'waffles', 'toast', 'cereal', 'oatmeal', 'bagel', 'yogurt', 'smoothie'],
+    lunch: ['sandwich', 'salad', 'soup', 'wrap', 'panini'],
+    dinner: ['steak', 'roast', 'casserole', 'stew', 'entree'],
+
+    // Health & Diet
+    healthy: ['lean', 'low fat', 'high protein', 'antioxidant', 'omega-3', 'fiber'],
+    comfort: ['creamy', 'rich', 'hearty', 'warming', 'indulgent']
+};
+
+function expandSearchTermsWithSemantics(query) {
+    const normalizedQuery = query.toLowerCase().trim();
+    const expandedTerms = [normalizedQuery];
+
+    // Check if the query matches any semantic category or items
+    for (const [category, items] of Object.entries(foodSemantics)) {
+        if (category === normalizedQuery) {
+            // If searching for category (e.g., "fish"), add all specific items
+            expandedTerms.push(...items);
+        } else if (items.includes(normalizedQuery)) {
+            // If searching for specific item (e.g., "salmon"), add the category
+            expandedTerms.push(category);
+            // Also add related items from same category (limited to avoid too many results)
+            expandedTerms.push(...items.slice(0, 5));
+        } else {
+            // Check for partial matches in items (e.g., "salmon" matches "smoked salmon")
+            const partialMatches = items.filter(item =>
+                item.includes(normalizedQuery) || normalizedQuery.includes(item)
+            );
+            if (partialMatches.length > 0) {
+                expandedTerms.push(category);
+                expandedTerms.push(...partialMatches);
+            }
+        }
+    }
+
+    return [...new Set(expandedTerms)]; // Remove duplicates
+}
+
+function performSemanticSearch(query, availableMeals) {
+    const expandedTerms = expandSearchTermsWithSemantics(query);
+    const semanticMatches = new Set();
+
+    // Search for meals that match any of the expanded terms
+    for (const term of expandedTerms) {
+        const termMatches = availableMeals.filter(meal => {
+            // Check name
+            if (meal.name.toLowerCase().includes(term)) return true;
+
+            // Check searchTerms
+            if (meal.searchTerms.some(searchTerm =>
+                searchTerm.toLowerCase().includes(term) || term.includes(searchTerm.toLowerCase())
+            )) return true;
+
+            // Check core ingredients
+            if (meal.ingredients.core.some(ingredient =>
+                ingredient.toLowerCase().includes(term) || term.includes(ingredient.toLowerCase())
+            )) return true;
+
+            return false;
+        });
+
+        termMatches.forEach(meal => semanticMatches.add(meal));
+    }
+
+    return Array.from(semanticMatches);
+}
+
 
 function loadMeals() {
     console.log('Loading meals...');
@@ -137,7 +255,10 @@ function performAdvancedSearch(query, availableMeals = meals) {
 
     const normalizedQuery = query.toLowerCase().trim();
 
-    // Step 1: Find exact matches with word boundaries
+    // Step 1: Get semantic matches (NEW - highest priority)
+    const semanticMatches = performSemanticSearch(normalizedQuery, availableMeals);
+
+    // Step 2: Find exact matches with word boundaries
     const wordBoundaryRegex = new RegExp(`\\b${normalizedQuery}\\b`, 'i');
     const exactMatches = availableMeals.filter(meal => {
         // Check for word boundary matches in name
@@ -150,7 +271,7 @@ function performAdvancedSearch(query, availableMeals = meals) {
         return meal.searchTerms.some(term => wordBoundaryRegex.test(term));
     });
 
-    // Step 2: Get fuzzy matches with dynamic threshold
+    // Step 3: Get fuzzy matches with dynamic threshold
     const threshold = getDynamicThreshold(normalizedQuery.length);
     const originalThreshold = fuse.options.threshold;
     fuse.options.threshold = threshold;
@@ -160,10 +281,12 @@ function performAdvancedSearch(query, availableMeals = meals) {
     // Restore original threshold
     fuse.options.threshold = originalThreshold;
 
-    // Step 3: Combine and rank results
-    const combinedResults = combineSearchResults(exactMatches, fuzzyResults, normalizedQuery, availableMeals);
+    // Step 4: Combine and rank results with semantic priority
+    const combinedResults = combineSearchResultsWithSemantics(
+        semanticMatches, exactMatches, fuzzyResults, normalizedQuery, availableMeals
+    );
 
-    // Step 4: Limit results
+    // Step 5: Limit results
     return combinedResults.slice(0, 12);
 }
 
@@ -172,6 +295,64 @@ function getDynamicThreshold(queryLength) {
     if (queryLength <= 5) return 0.2;
     if (queryLength <= 8) return 0.25;
     return 0.3;
+}
+
+function combineSearchResultsWithSemantics(semanticMatches, exactMatches, fuzzyResults, query, availableMeals) {
+    const results = new Map();
+
+    // Add semantic matches with highest priority (NEW)
+    semanticMatches.forEach(meal => {
+        const priority = getSemanticMatchPriority(meal, query);
+        results.set(meal.name, { meal, score: priority, type: 'semantic' });
+    });
+
+    // Add exact matches with high priority (but lower than semantic)
+    exactMatches.forEach(meal => {
+        if (!results.has(meal.name)) {
+            const priority = getExactMatchPriority(meal, query) + 0.2; // Add offset for semantic priority
+            results.set(meal.name, { meal, score: priority, type: 'exact' });
+        }
+    });
+
+    // Add fuzzy matches that aren't already in results and are in available meals
+    fuzzyResults.forEach(result => {
+        const isAvailable = availableMeals.some(m => m.name === result.item.name);
+        if (!results.has(result.item.name) && result.score <= 0.4 && isAvailable) {
+            const adjustedScore = 0.7 + result.score; // Lower priority than exact and semantic matches
+            results.set(result.item.name, { meal: result.item, score: adjustedScore, type: 'fuzzy' });
+        }
+    });
+
+    // Sort by score (lower is better) and return meals
+    return Array.from(results.values())
+        .sort((a, b) => a.score - b.score)
+        .map(result => result.meal);
+}
+
+function getSemanticMatchPriority(meal, query) {
+    const mealName = meal.name.toLowerCase();
+    const queryLower = query.toLowerCase();
+
+    // Direct ingredient match in name gets highest semantic priority
+    if (mealName.includes(queryLower)) return 0.01;
+
+    // Search terms semantic match
+    if (meal.searchTerms.some(term => term.toLowerCase().includes(queryLower))) return 0.02;
+
+    // Core ingredients semantic match
+    if (meal.ingredients.core.some(ingredient => ingredient.toLowerCase().includes(queryLower))) return 0.03;
+
+    // Expanded semantic terms match (e.g., "fish" matches "salmon")
+    const expandedTerms = expandSearchTermsWithSemantics(queryLower);
+    for (const term of expandedTerms) {
+        if (term !== queryLower) { // Skip the original query
+            if (mealName.includes(term)) return 0.04;
+            if (meal.searchTerms.some(searchTerm => searchTerm.toLowerCase().includes(term))) return 0.05;
+            if (meal.ingredients.core.some(ingredient => ingredient.toLowerCase().includes(term))) return 0.06;
+        }
+    }
+
+    return 0.1; // Default semantic match score
 }
 
 function combineSearchResults(exactMatches, fuzzyResults, query, availableMeals) {
@@ -391,5 +572,9 @@ export {
     createCompactMealCard,
     showMealDetails,
     closeModal,
-    copyAllMealsToClipboard
+    copyAllMealsToClipboard,
+    expandSearchTermsWithSemantics,
+    performSemanticSearch,
+    combineSearchResultsWithSemantics,
+    getSemanticMatchPriority
 };

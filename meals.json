@@ -47,7 +47,7 @@
       "core": ["Bagel", "Smoked salmon", "Cream cheese"],
       "pantry": ["Dill", "Capers (rinsed)", "Lemon zest (optional)"]
     },
-    "searchTerms": ["bagel", "lox", "salmon", "cream cheese", "deli", "jewish", "brunch"]
+    "searchTerms": ["bagel", "lox", "salmon", "cream cheese", "deli", "jewish", "brunch", "fish"]
   },
   {
     "name": "Breakfast Burrito",
@@ -127,7 +127,7 @@
       "core": ["Eggs", "Smoked salmon", "Onion"],
       "pantry": ["Butter", "Salt", "Pepper", "Dill (optional)"]
     },
-    "searchTerms": ["lox and eggs", "scramble", "deli", "classic", "smoked salmon"]
+    "searchTerms": ["lox and eggs", "scramble", "deli", "classic", "smoked salmon", "fish"]
   },
   {
     "name": "Spaghetti with Turkey Bolognese",
@@ -167,7 +167,7 @@
       "core": ["Rigatoni", "Canned tuna", "Olives", "Capers (rinsed)"],
       "pantry": ["Passata", "Garlic", "Olive oil"]
     },
-    "searchTerms": ["tuna", "pasta", "olives", "capers", "pantry", "mediterranean", "briny"]
+    "searchTerms": ["tuna", "pasta", "olives", "capers", "pantry", "mediterranean", "briny", "fish", "seafood"]
   },
   {
     "name": "Sausage & Peppers with Orzo",
@@ -287,7 +287,7 @@
       "core": ["Salmon", "Rice", "Asparagus or green beans"],
       "pantry": ["White miso", "Soy sauce", "Sugar", "Sesame seeds"]
     },
-    "searchTerms": ["salmon", "miso", "glaze", "japanese", "seafood", "mild"]
+    "searchTerms": ["salmon", "miso", "glaze", "japanese", "seafood", "mild", "fish"]
   },
   {
     "name": "Yakitori-Style Chicken (Broiler)",
@@ -517,7 +517,7 @@
       "core": ["Cod", "Breadcrumbs", "Parsley"],
       "pantry": ["Olive oil", "Garlic", "Lemon zest", "Salt", "Pepper"]
     },
-    "searchTerms": ["cod", "oreganata", "italian", "baked", "classic", "zest only"]
+    "searchTerms": ["cod", "oreganata", "italian", "baked", "classic", "zest only", "fish", "seafood"]
   },
   {
     "name": "Salmon with Dill Mayo",
@@ -527,7 +527,7 @@
       "core": ["Salmon", "Dill"],
       "pantry": ["Mayonnaise", "Salt", "Pepper", "Lemon zest"]
     },
-    "searchTerms": ["salmon", "dill", "mayo", "baked", "quick", "no citrus"]
+    "searchTerms": ["salmon", "dill", "mayo", "baked", "quick", "no citrus", "fish"]
   },
   {
     "name": "Crab Linguine (Zest, Not Juicy)",
@@ -677,7 +677,7 @@
       "core": ["Canned salmon", "Rye bread", "Dill"],
       "pantry": ["Mayonnaise", "Capers (rinsed)", "Lemon zest", "Black pepper"]
     },
-    "searchTerms": ["salmon salad", "rye", "deli", "lunch", "classic"]
+    "searchTerms": ["salmon salad", "rye", "deli", "lunch", "classic", "fish"]
   },
   {
     "name": "Seared Zucchini with Butter-Soy",
