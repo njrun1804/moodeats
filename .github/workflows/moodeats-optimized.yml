@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     name: ⚡ Quick Checks
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Validate JSON
       run: |
@@ -71,10 +71,10 @@ jobs:
     name: 🧪 Unit Tests
     needs: quick-checks
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
@@ -82,7 +82,7 @@ jobs:
 
     - name: Cache dependencies
       id: cache-deps
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: node_modules
         key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
@@ -128,7 +128,7 @@ jobs:
     needs: quick-checks
     timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
@@ -136,7 +136,7 @@ jobs:
         cache-dependency-path: package-lock.json
 
     - name: Cache Playwright
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/ms-playwright
@@ -164,7 +164,7 @@ jobs:
     needs: quick-checks
     timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
@@ -172,7 +172,7 @@ jobs:
         cache-dependency-path: package-lock.json
 
     - name: Cache Playwright
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/ms-playwright
@@ -206,7 +206,7 @@ jobs:
       id-token: write
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Optimize assets
       run: |
@@ -228,16 +228,16 @@ jobs:
         du -h *.html | sort -h
 
     - name: Setup GitHub Pages
-      uses: actions/configure-pages@v3
+      uses: actions/configure-pages@v4
 
     - name: Upload to Pages
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: '.'
 
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v2
+      uses: actions/deploy-pages@v4
 
     - name: Verify deployment
       run: |
@@ -263,7 +263,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Lighthouse CI
       run: |
