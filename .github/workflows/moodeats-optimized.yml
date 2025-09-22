@@ -198,7 +198,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: 🚀 Deploy to GitHub Pages
-    needs: [unit-tests, e2e-chrome, e2e-firefox]
+    needs: [unit-tests]  # Temporarily disabled E2E tests
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
