@@ -124,7 +124,7 @@ jobs:
 
     - name: Upload coverage
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report
         path: moodeats/coverage/
@@ -163,7 +163,7 @@ jobs:
 
     - name: Upload results
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: chrome-results
         path: moodeats/test-results/
@@ -200,7 +200,7 @@ jobs:
 
     - name: Upload results
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: firefox-results
         path: moodeats/test-results/
