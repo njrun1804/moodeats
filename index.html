@@ -107,6 +107,31 @@
       .tagify__input {
         color: #374151;
         font-size: 14px;
+        background: transparent !important;
+      }
+
+      /* Fix the input field placeholder and typing appearance */
+      .tagify__input::before {
+        color: #9ca3af !important;
+        opacity: 1 !important;
+      }
+
+      /* Fix the X button styling */
+      .tagify__tag__removeBtn {
+        color: white !important;
+        opacity: 0.7;
+        margin-left: 4px;
+        font-size: 16px;
+        line-height: 1;
+      }
+
+      .tagify__tag__removeBtn:hover {
+        opacity: 1;
+      }
+
+      /* Ensure proper tag text color */
+      .tagify__tag-text {
+        color: white !important;
       }
 
       .tagify__dropdown {
