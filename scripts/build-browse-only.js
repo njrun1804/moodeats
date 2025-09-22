@@ -22,10 +22,16 @@ const nutritionData = fs.readFileSync(path.join(srcDir, 'nutrition-data.js'), 'u
     .replace(/export\s*{[^}]*};?/g, '')
     .replace(/^\/\/.*$/gm, '');
 
-const appJs = fs.readFileSync(path.join(srcDir, 'app-simple.js'), 'utf8')
+let appJs = fs.readFileSync(path.join(srcDir, 'app-simple.js'), 'utf8')
     .replace(/export\s*{[^}]*};?/g, '')
     .replace(/import\s*{[^}]*}\s*from\s*['""][^'"]*['""];?/g, '')
     .replace(/^\/\/.*$/gm, '');
+
+// Remove the existing initialization code block more reliably
+const initStartIndex = appJs.indexOf('// Auto-initialize when DOM is ready');
+if (initStartIndex !== -1) {
+    appJs = appJs.substring(0, initStartIndex);
+}
 
 // Create the bundle
 const bundle = `// MoodEats Browse-Only Bundle

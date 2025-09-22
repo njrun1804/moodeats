@@ -2,6 +2,7 @@ let meals = [];
 let fuse;
 let currentMood = 'all';
 let selectedMeal = null;
+let searchTagify = null;
 
 // Comprehensive food semantic mapping for domain-specific search
 const foodSemantics = {
@@ -92,33 +93,269 @@ function expandSearchTermsWithSemantics(query) {
     return [...new Set(expandedTerms)]; // Remove duplicates
 }
 
+function buildSearchableTerms() {
+    const terms = new Set();
+
+    // Add common food categories with their types
+    const termCategories = [
+        // Ingredients
+        {category: 'ingredient', items: ['eggs', 'pasta', 'rice', 'chicken', 'beef', 'salmon', 'tuna', 'shrimp', 'mushrooms', 'cheese', 'tomatoes', 'onions', 'garlic', 'spinach', 'broccoli', 'carrots', 'potatoes', 'bread', 'bacon', 'turkey', 'lemon', 'lime', 'avocado', 'lettuce', 'peppers', 'zucchini', 'asparagus', 'beans', 'lentils', 'quinoa', 'butter', 'cream', 'milk', 'yogurt', 'olive oil', 'soy sauce', 'ginger', 'cilantro', 'basil', 'dill', 'parsley', 'mozzarella', 'parmesan', 'cheddar', 'feta', 'goat cheese']},
+
+        // Moods/Attributes
+        {category: 'mood', items: ['quick', 'easy', 'healthy', 'light', 'hearty', 'cozy', 'fresh', 'creamy', 'crispy', 'spicy', 'mild', 'savory', 'sweet', 'tangy', 'rich', 'lean', 'filling', 'comfort', 'warming']},
+
+        // Cuisines
+        {category: 'cuisine', items: ['italian', 'asian', 'chinese', 'japanese', 'thai', 'korean', 'indian', 'mexican', 'mediterranean', 'greek', 'french', 'american', 'southern', 'middle eastern']},
+
+        // Meal Types
+        {category: 'meal-type', items: ['breakfast', 'lunch', 'dinner', 'snack', 'appetizer', 'side', 'main', 'entree', 'salad', 'soup', 'sandwich', 'bowl', 'wrap', 'smoothie']},
+
+        // Cooking Methods
+        {category: 'cooking', items: ['baked', 'grilled', 'fried', 'sautéed', 'roasted', 'steamed', 'boiled', 'broiled', 'pan-seared', 'stir-fried', 'braised', 'poached']}
+    ];
+
+    const searchableTerms = [];
+
+    termCategories.forEach(({category, items}) => {
+        items.forEach(item => {
+            searchableTerms.push({
+                value: item,
+                category: category,
+                searchBy: item.toLowerCase()
+            });
+        });
+    });
+
+    // Add specific terms from actual meal data
+    meals.forEach(meal => {
+        // Add meal name words
+        meal.name.toLowerCase().split(/\s+/).forEach(word => {
+            if (word.length > 2 && !searchableTerms.find(t => t.value === word)) {
+                searchableTerms.push({
+                    value: word,
+                    category: 'meal-name',
+                    searchBy: word
+                });
+            }
+        });
+
+        // Add search terms
+        meal.searchTerms.forEach(term => {
+            if (!searchableTerms.find(t => t.value === term)) {
+                searchableTerms.push({
+                    value: term,
+                    category: 'search-term',
+                    searchBy: term.toLowerCase()
+                });
+            }
+        });
+
+        // Add core ingredients
+        meal.ingredients.core.forEach(ingredient => {
+            const cleanIngredient = ingredient.toLowerCase().replace(/[()]/g, '').trim();
+            if (cleanIngredient.length > 2 && !searchableTerms.find(t => t.value === cleanIngredient)) {
+                searchableTerms.push({
+                    value: cleanIngredient,
+                    category: 'ingredient',
+                    searchBy: cleanIngredient
+                });
+            }
+        });
+    });
+
+    return searchableTerms.sort((a, b) => a.value.localeCompare(b.value));
+}
+
+function initializeFallbackSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+
+    // Restore original placeholder
+    searchInput.placeholder = 'Search meals...';
+
+    // Add regular search event listener
+    searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.trim();
+        searchMeals(query);
+    });
+
+    // Handle enter key
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = e.target.value.trim();
+            searchMeals(query);
+        }
+    });
+}
+
+function initializeTagifySearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) {
+        console.warn('Search input not found');
+        return;
+    }
+
+    if (typeof Tagify === 'undefined') {
+        console.warn('Tagify not available, falling back to regular search');
+        initializeFallbackSearch();
+        return;
+    }
+
+    // Build searchable terms from meal data
+    const searchableTerms = buildSearchableTerms();
+
+    // Initialize Tagify
+    searchTagify = new Tagify(searchInput, {
+        whitelist: searchableTerms,
+        maxTags: 10,
+        dropdown: {
+            maxItems: 20,
+            classname: 'tags-look',
+            enabled: 0,
+            closeOnSelect: false,
+            fuzzySearch: true,
+            searchKeys: ['value']
+        },
+        enforceWhitelist: false,
+        skipInvalid: false,
+        duplicates: false,
+        autoComplete: {
+            enabled: true,
+            rightKey: true
+        },
+        placeholder: 'Type to search ingredients, moods, cuisines...',
+        templates: {
+            tag: function(tagData) {
+                return `<tag title="${tagData.value}"
+                        contenteditable='false'
+                        spellcheck='false'
+                        tabIndex="-1"
+                        class="tagify__tag tagify__tag--${tagData.category || 'default'}"
+                        ${this.getAttributes(tagData)}>
+                    <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
+                    <div>
+                        <span class='tagify__tag-text'>${tagData.value}</span>
+                    </div>
+                </tag>`;
+            },
+            dropdownItem: function(tagData) {
+                return `<div ${this.getAttributes(tagData)}
+                        class='tagify__dropdown__item ${tagData.category ? 'tagify__dropdown__item--' + tagData.category : ''}'
+                        tabindex="0"
+                        role="option">
+                    <span class='tagify__dropdown__item__text'>${tagData.value}</span>
+                    <span class='tagify__dropdown__item__category'>${tagData.category || ''}</span>
+                </div>`;
+            }
+        }
+    });
+
+    // Handle tag changes
+    searchTagify.on('add remove', function(e) {
+        performTagSearch();
+    });
+
+    // Handle input changes for autocomplete
+    searchTagify.on('input', function(e) {
+        if (e.detail.value === '') {
+            performTagSearch(); // Empty search shows all
+        }
+    });
+}
+
+function performTagSearch() {
+    if (!searchTagify) return;
+
+    const tags = searchTagify.value.map(tag => tag.value.toLowerCase());
+
+    if (tags.length === 0) {
+        // No tags selected, show current mood or all
+        if (currentMood === 'all') {
+            displayAllMeals();
+        } else {
+            showMealSuggestions(currentMood);
+        }
+        return;
+    }
+
+    // Filter meals that match ALL selected tags
+    const filteredMeals = meals.filter(meal => {
+        return tags.every(tag => {
+            // Check if meal matches this tag
+            const mealText = [
+                meal.name,
+                ...meal.searchTerms,
+                ...meal.ingredients.core,
+                ...meal.moods,
+                meal.category
+            ].join(' ').toLowerCase();
+
+            return mealText.includes(tag);
+        });
+    });
+
+    displayMeals(filteredMeals);
+}
+
 function performSemanticSearch(query, availableMeals) {
+    const normalizedQuery = query.toLowerCase().trim();
+
+    // Handle single word vs multi-word queries differently
+    const queryWords = normalizedQuery.split(/\s+/).filter(word => word.length > 0);
+
+    if (queryWords.length === 1) {
+        // Single word - use original semantic expansion
+        return performSingleTermSemanticSearch(normalizedQuery, availableMeals);
+    } else {
+        // Multi-word - require ALL words to match (AND logic)
+        return performMultiTermSemanticSearch(queryWords, availableMeals);
+    }
+}
+
+function performSingleTermSemanticSearch(query, availableMeals) {
     const expandedTerms = expandSearchTermsWithSemantics(query);
     const semanticMatches = new Set();
 
-    // Search for meals that match any of the expanded terms
+    // For single terms, match any of the expanded terms
     for (const term of expandedTerms) {
-        const termMatches = availableMeals.filter(meal => {
-            // Check name
-            if (meal.name.toLowerCase().includes(term)) return true;
-
-            // Check searchTerms
-            if (meal.searchTerms.some(searchTerm =>
-                searchTerm.toLowerCase().includes(term) || term.includes(searchTerm.toLowerCase())
-            )) return true;
-
-            // Check core ingredients
-            if (meal.ingredients.core.some(ingredient =>
-                ingredient.toLowerCase().includes(term) || term.includes(ingredient.toLowerCase())
-            )) return true;
-
-            return false;
-        });
-
+        const termMatches = availableMeals.filter(meal =>
+            mealMatchesTerm(meal, term)
+        );
         termMatches.forEach(meal => semanticMatches.add(meal));
     }
 
     return Array.from(semanticMatches);
+}
+
+function performMultiTermSemanticSearch(queryWords, availableMeals) {
+    // For multi-term queries, each meal must match ALL words
+    return availableMeals.filter(meal => {
+        return queryWords.every(word => {
+            // Expand each word semantically
+            const expandedTerms = expandSearchTermsWithSemantics(word);
+
+            // Check if meal matches this word (or any of its semantic expansions)
+            return expandedTerms.some(term => mealMatchesTerm(meal, term));
+        });
+    });
+}
+
+function mealMatchesTerm(meal, term) {
+    // Check name
+    if (meal.name.toLowerCase().includes(term)) return true;
+
+    // Check searchTerms
+    if (meal.searchTerms.some(searchTerm =>
+        searchTerm.toLowerCase().includes(term) || term.includes(searchTerm.toLowerCase())
+    )) return true;
+
+    // Check core ingredients
+    if (meal.ingredients.core.some(ingredient =>
+        ingredient.toLowerCase().includes(term) || term.includes(ingredient.toLowerCase())
+    )) return true;
+
+    return false;
 }
 
 
@@ -184,28 +421,8 @@ function setupEventListeners() {
         sendToAIBtn.addEventListener('click', copyAllMealsToClipboard);
     }
 
-    // Search input with debounce
-    let searchTimeout;
-    const searchInput = document.getElementById('searchInput');
-
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const query = this.value.trim();
-
-        if (query.length === 0) {
-            // If search is cleared, show current mood or all
-            if (currentMood === 'all') {
-                displayAllMeals();
-            } else {
-                showMealSuggestions(currentMood);
-            }
-            return;
-        }
-
-        searchTimeout = setTimeout(() => {
-            searchMeals(query);
-        }, 300);
-    });
+    // Initialize Tagify search
+    initializeTagifySearch();
 
     // Modal close on backdrop click
     document.getElementById('mealModal').addEventListener('click', function(e) {
@@ -575,6 +792,13 @@ export {
     copyAllMealsToClipboard,
     expandSearchTermsWithSemantics,
     performSemanticSearch,
+    performSingleTermSemanticSearch,
+    performMultiTermSemanticSearch,
+    mealMatchesTerm,
     combineSearchResultsWithSemantics,
-    getSemanticMatchPriority
+    getSemanticMatchPriority,
+    buildSearchableTerms,
+    initializeTagifySearch,
+    initializeFallbackSearch,
+    performTagSearch
 };

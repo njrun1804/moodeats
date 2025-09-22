@@ -16,6 +16,10 @@
     <!-- Fuse.js for fuzzy search -->
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
 
+    <!-- Tagify for autocomplete tag input -->
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.21.1/dist/tagify.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.21.1/dist/tagify.min.js"></script>
+
     <!-- Custom styles -->
     <style>
       body {
@@ -55,6 +59,77 @@
       .search-input:focus {
         outline: none;
         border-color: #3b82f6;
+      }
+
+      /* Tagify Integration Styles */
+      .tagify {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        min-height: 36px;
+        padding: 6px 8px;
+        background: white;
+      }
+
+      .tagify:hover {
+        border-color: #9ca3af;
+      }
+
+      .tagify.tagify--focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 1px #3b82f6;
+      }
+
+      .tagify__tag {
+        background: #3b82f6;
+        color: white;
+        border-radius: 4px;
+        margin: 2px;
+        padding: 4px 8px;
+        font-size: 13px;
+      }
+
+      .tagify__tag:hover {
+        background: #2563eb;
+      }
+
+      .tagify__tag--ingredient {
+        background: #10b981;
+      }
+
+      .tagify__tag--mood {
+        background: #f59e0b;
+      }
+
+      .tagify__tag--cuisine {
+        background: #8b5cf6;
+      }
+
+      .tagify__input {
+        color: #374151;
+        font-size: 14px;
+      }
+
+      .tagify__dropdown {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        background: white;
+        z-index: 1000;
+      }
+
+      .tagify__dropdown__item {
+        padding: 8px 12px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 14px;
+      }
+
+      .tagify__dropdown__item:hover,
+      .tagify__dropdown__item--active {
+        background: #f3f4f6;
+      }
+
+      .tagify__dropdown__item__text {
+        font-weight: 500;
       }
 
       .mood-pills {
